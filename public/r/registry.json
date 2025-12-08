@@ -1,0 +1,150 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "edbn-ui",
+  "homepage": "https://ui.edbn.me",
+  "items": [
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Animated button component with press feedback, loading states, and icon support.",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "motion",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "Animated modal dialog with morphing animations and focus trap.",
+      "dependencies": [
+        "motion",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Animated popover component with morphing transitions and click-outside handling.",
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "hooks/useClickOutside.tsx",
+          "type": "registry:hook"
+        },
+        {
+          "path": "components/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Animated dropdown menu with smooth spring animations and staggered item reveals.",
+      "dependencies": [
+        "@radix-ui/react-dropdown-menu",
+        "motion",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "motion-provider",
+      "type": "registry:component",
+      "title": "Motion Provider",
+      "description": "Global animation configuration provider with reduced motion and low-power device detection.",
+      "dependencies": [
+        "motion"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/MotionProvider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "hooks/useReducedMotion.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "hooks/useLowPowerDevice.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "icons",
+      "type": "registry:lib",
+      "title": "Animated Icons",
+      "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
+      "dependencies": [
+        "motion",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "lib/icons.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "use-click-outside",
+      "type": "registry:hook",
+      "title": "useClickOutside",
+      "description": "Hook to detect clicks outside a referenced element.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/useClickOutside.tsx",
+          "type": "registry:hook"
+        }
+      ]
+    }
+  ]
+}
