@@ -60,4 +60,3 @@ Next.js 16, React 19, Tailwind CSS v4, Radix UI, Motion (framer-motion fork), Vi
 Bugs? Ideas? [Open an issue](https://github.com/edbnme/ui.edbn.me/issues).
 
 ---
-echo "✅ Public README created"
