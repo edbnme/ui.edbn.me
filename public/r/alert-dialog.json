@@ -6,7 +6,8 @@
   "description": "Animated modal dialog with morphing animations and focus trap.",
   "dependencies": [
     "motion",
-    "lucide-react"
+    "lucide-react",
+    "tw-animate-css"
   ],
   "registryDependencies": [
     "utils"

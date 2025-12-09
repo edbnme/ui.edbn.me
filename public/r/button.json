@@ -8,7 +8,8 @@
     "@radix-ui/react-slot",
     "class-variance-authority",
     "motion",
-    "lucide-react"
+    "lucide-react",
+    "tw-animate-css"
   ],
   "registryDependencies": [
     "utils"

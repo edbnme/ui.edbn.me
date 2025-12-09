@@ -5,7 +5,8 @@
   "title": "Motion Provider",
   "description": "Global animation configuration provider with reduced motion and low-power device detection.",
   "dependencies": [
-    "motion"
+    "motion",
+    "tw-animate-css"
   ],
   "registryDependencies": [],
   "files": [

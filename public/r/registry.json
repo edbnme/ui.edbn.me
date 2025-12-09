@@ -12,7 +12,8 @@
         "@radix-ui/react-slot",
         "class-variance-authority",
         "motion",
-        "lucide-react"
+        "lucide-react",
+        "tw-animate-css"
       ],
       "registryDependencies": [
         "utils"
@@ -31,7 +32,8 @@
       "description": "Animated modal dialog with morphing animations and focus trap.",
       "dependencies": [
         "motion",
-        "lucide-react"
+        "lucide-react",
+        "tw-animate-css"
       ],
       "registryDependencies": [
         "utils"
@@ -49,7 +51,8 @@
       "title": "Popover",
       "description": "Animated popover component with morphing transitions and click-outside handling.",
       "dependencies": [
-        "motion"
+        "motion",
+        "tw-animate-css"
       ],
       "registryDependencies": [
         "utils"
@@ -73,7 +76,8 @@
       "dependencies": [
         "@radix-ui/react-dropdown-menu",
         "motion",
-        "lucide-react"
+        "lucide-react",
+        "tw-animate-css"
       ],
       "registryDependencies": [
         "utils"
@@ -91,7 +95,8 @@
       "title": "Motion Provider",
       "description": "Global animation configuration provider with reduced motion and low-power device detection.",
       "dependencies": [
-        "motion"
+        "motion",
+        "tw-animate-css"
       ],
       "registryDependencies": [],
       "files": [
@@ -120,7 +125,8 @@
       "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
       "dependencies": [
         "motion",
-        "lucide-react"
+        "lucide-react",
+        "tw-animate-css"
       ],
       "registryDependencies": [
         "utils"

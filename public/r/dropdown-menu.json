@@ -7,7 +7,8 @@
   "dependencies": [
     "@radix-ui/react-dropdown-menu",
     "motion",
-    "lucide-react"
+    "lucide-react",
+    "tw-animate-css"
   ],
   "registryDependencies": [
     "utils"

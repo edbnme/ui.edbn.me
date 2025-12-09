@@ -6,7 +6,8 @@
   "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
   "dependencies": [
     "motion",
-    "lucide-react"
+    "lucide-react",
+    "tw-animate-css"
   ],
   "registryDependencies": [
     "utils"

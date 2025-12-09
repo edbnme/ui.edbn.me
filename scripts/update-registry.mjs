@@ -12,7 +12,7 @@ const components = {
     type: 'registry:ui',
     title: 'Button',
     description: 'Animated button component with press feedback, loading states, and icon support.',
-    dependencies: ['@radix-ui/react-slot', 'class-variance-authority', 'motion', 'lucide-react'],
+    dependencies: ['@radix-ui/react-slot', 'class-variance-authority', 'motion', 'lucide-react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider', 'icons'],
     files: [
@@ -23,7 +23,7 @@ const components = {
     type: 'registry:ui',
     title: 'Alert Dialog',
     description: 'Animated modal dialog with morphing animations and focus trap.',
-    dependencies: ['motion', 'lucide-react'],
+    dependencies: ['motion', 'lucide-react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider'],
     files: [
@@ -34,7 +34,7 @@ const components = {
     type: 'registry:ui',
     title: 'Popover',
     description: 'Animated popover component with morphing transitions and click-outside handling.',
-    dependencies: ['motion'],
+    dependencies: ['motion', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: [],
     files: [
@@ -46,7 +46,7 @@ const components = {
     type: 'registry:ui',
     title: 'Dropdown Menu',
     description: 'Animated dropdown menu with smooth spring animations and staggered item reveals.',
-    dependencies: ['@radix-ui/react-dropdown-menu', 'motion', 'lucide-react'],
+    dependencies: ['@radix-ui/react-dropdown-menu', 'motion', 'lucide-react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider'],
     files: [
@@ -57,7 +57,7 @@ const components = {
     type: 'registry:component',
     title: 'Motion Provider',
     description: 'Global animation configuration provider with reduced motion and low-power device detection.',
-    dependencies: ['motion'],
+    dependencies: ['motion', 'tw-animate-css'],
     registryDependencies: [],
     inlineDependencies: [],
     files: [
@@ -71,7 +71,7 @@ const components = {
     type: 'registry:lib',
     title: 'Animated Icons',
     description: 'Animated icon components including loading spinners, morphing icons, and close buttons.',
-    dependencies: ['motion', 'lucide-react'],
+    dependencies: ['motion', 'lucide-react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider'],
     files: [
