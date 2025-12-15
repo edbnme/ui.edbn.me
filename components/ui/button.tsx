@@ -1,26 +1,70 @@
+/**
+ * Button Component
+ *
+ * A production-grade button with animations, loading states, and full accessibility.
+ * Follows the component philosophy: open (full source), reliable (battle-tested),
+ * comprehensive (rich API), and customizable.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
+// =============================================================================
+// IMPORTS
+// =============================================================================
+
+// 1. React imports
 import * as React from "react";
+import {
+  forwardRef,
+  useCallback,
+  useState,
+  useEffect,
+  type ComponentPropsWithoutRef,
+  type ElementRef,
+} from "react";
+
+// 2. External library imports
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { motion } from "motion/react";
+import { motion, type HTMLMotionProps } from "motion/react";
 import type { LucideIcon } from "lucide-react";
 
+// 3. Internal imports
 import { cn } from "@/lib/utils";
-import { springPresets } from "@/lib/motion";
+import { springPresets, gestures } from "@/lib/animations";
 import { LoadingSpinner, AnimatedCheck } from "@/lib/icons";
 import { useShouldDisableAnimation } from "@/components/MotionProvider";
 
 // =============================================================================
-// RIPPLE HOOK
+// TYPES
 // =============================================================================
 
-type Ripple = { x: number; y: number; size: number; key: number };
+/**
+ * Ripple effect data structure
+ */
+interface Ripple {
+  x: number;
+  y: number;
+  size: number;
+  key: number;
+}
 
-const useRipple = () => {
-  const [ripples, setRipples] = React.useState<Ripple[]>([]);
+// =============================================================================
+// HOOKS
+// =============================================================================
 
-  const createRipple = React.useCallback(
+/**
+ * Hook to manage ripple effects on button click
+ *
+ * Creates expanding circular ripples from the click point,
+ * automatically cleaning up after animation completes.
+ */
+function useRipple() {
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+
+  const createRipple = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       const button = event.currentTarget;
       const rect = button.getBoundingClientRect();
@@ -28,13 +72,14 @@ const useRipple = () => {
       const x = event.clientX - rect.left - size / 2;
       const y = event.clientY - rect.top - size / 2;
 
-      const newRipple = { x, y, size, key: Date.now() };
+      const newRipple: Ripple = { x, y, size, key: Date.now() };
       setRipples((prev) => [...prev, newRipple]);
     },
     []
   );
 
-  React.useEffect(() => {
+  // Auto-cleanup ripples after animation
+  useEffect(() => {
     if (ripples.length > 0) {
       const lastRipple = ripples[ripples.length - 1];
       const timeout = setTimeout(() => {
@@ -45,29 +90,47 @@ const useRipple = () => {
   }, [ripples]);
 
   return { ripples, createRipple };
-};
+}
 
 // =============================================================================
-// BUTTON VARIANTS (CVA)
-// Extends shadcn variants with refinements
+// VARIANTS (CVA)
+// Defined outside component for performance
 // =============================================================================
 
+/**
+ * Button variants using class-variance-authority
+ *
+ * Includes all standard variants plus refinements for shadows,
+ * focus states, and accessibility.
+ */
 const buttonVariants = cva(
+  // Base styles - always applied
   [
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap",
-    "rounded-lg text-sm font-medium",
+    // Layout
+    "inline-flex items-center justify-center gap-2 whitespace-nowrap shrink-0",
+    // Typography
+    "text-sm font-medium",
+    // Shape
+    "rounded-lg",
+    // Transitions
     "transition-colors duration-150",
+    // Disabled state
     "disabled:pointer-events-none disabled:opacity-50",
-    "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
-    "shrink-0 [&_svg]:shrink-0",
+    // Icon sizing
+    "[&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0",
+    // Focus ring
     "outline-none",
     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+    // Error state (aria-invalid)
     "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
-    // refinements
+    // Usability
     "select-none",
   ].join(" "),
   {
     variants: {
+      /**
+       * Visual style variants
+       */
       variant: {
         default: [
           "bg-primary text-primary-foreground",
@@ -75,6 +138,7 @@ const buttonVariants = cva(
           "hover:bg-primary/90 hover:shadow-md hover:shadow-primary/25",
           "active:shadow-sm",
         ].join(" "),
+
         destructive: [
           "bg-destructive text-white",
           "shadow-sm shadow-destructive/20",
@@ -82,23 +146,31 @@ const buttonVariants = cva(
           "focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40",
           "dark:bg-destructive/80",
         ].join(" "),
+
         outline: [
           "border border-input bg-background",
           "shadow-xs",
           "hover:bg-accent hover:text-accent-foreground hover:border-accent-foreground/20",
           "dark:bg-input/30 dark:border-input dark:hover:bg-input/50",
         ].join(" "),
+
         secondary: [
           "bg-secondary text-secondary-foreground",
           "shadow-xs",
           "hover:bg-secondary/80 hover:shadow-sm",
         ].join(" "),
+
         ghost: [
           "hover:bg-accent hover:text-accent-foreground",
           "dark:hover:bg-accent/50",
         ].join(" "),
+
         link: ["text-primary underline-offset-4", "hover:underline"].join(" "),
       },
+
+      /**
+       * Size variants
+       */
       size: {
         default: "h-10 px-5 py-2.5 has-[>svg]:px-4",
         sm: "h-9 rounded-md gap-1.5 px-4 text-xs has-[>svg]:px-3",
@@ -109,6 +181,7 @@ const buttonVariants = cva(
         "icon-lg": "size-11",
       },
     },
+
     defaultVariants: {
       variant: "default",
       size: "default",
@@ -117,52 +190,101 @@ const buttonVariants = cva(
 );
 
 // =============================================================================
-// BUTTON TYPES
+// COMPONENT PROPS
 // =============================================================================
 
-export type ButtonProps = {
-  /** Render as a different element using Radix Slot */
+/**
+ * Button component props
+ */
+export interface ButtonProps
+  extends Omit<ComponentPropsWithoutRef<"button">, "ref">,
+    VariantProps<typeof buttonVariants> {
+  /**
+   * Render as a different element using Radix Slot pattern.
+   * When true, button merges props with its child element.
+   *
+   * @example
+   * ```tsx
+   * <Button asChild>
+   *   <a href="/home">Go Home</a>
+   * </Button>
+   * ```
+   */
   asChild?: boolean;
-  /** Show loading spinner and disable button */
+
+  /**
+   * Show loading spinner and disable interactions.
+   * Replaces iconStart with a spinner.
+   */
   loading?: boolean;
-  /** Show success state with checkmark */
+
+  /**
+   * Show success state with animated checkmark.
+   * Replaces iconStart with a check icon.
+   */
   success?: boolean;
-  /** Icon to display at the start (left side) */
+
+  /**
+   * Icon to display at the start (left side).
+   * Hidden during loading/success states.
+   */
   iconStart?: LucideIcon;
-  /** Icon to display at the end (right side) */
+
+  /**
+   * Icon to display at the end (right side).
+   * Hidden during loading/success states.
+   */
   iconEnd?: LucideIcon;
-  /** Disable all animations */
+
+  /**
+   * Disable all animations for this button.
+   * Overrides global motion provider settings.
+   */
   disableAnimation?: boolean;
-} & VariantProps<typeof buttonVariants> &
-  Omit<React.ComponentProps<"button">, "ref">;
+}
 
 // =============================================================================
 // BUTTON COMPONENT
 // =============================================================================
 
 /**
- * Button - Unified button component with animations
+ * Button - Unified button component with animations and rich features.
  *
  * Features:
- * - All shadcn variants (default, destructive, outline, secondary, ghost, link)
+ * - All standard variants (default, destructive, outline, secondary, ghost, link)
  * - Motion press feedback (scale on tap)
+ * - Ripple effect on click
  * - Loading state with animated spinner
- * - Icon support with enter/exit animations
+ * - Success state with checkmark
+ * - Icon support with proper positioning
  * - Respects reduced motion preferences
  * - Full ARIA compliance
+ * - Polymorphic with asChild pattern
  *
  * @example
  * ```tsx
- * <Button variant="default" size="lg" loading={isSubmitting}>
+ * // Basic usage
+ * <Button variant="default" size="lg">
  *   Submit
  * </Button>
  *
+ * // With loading state
+ * <Button loading={isSubmitting}>
+ *   Save Changes
+ * </Button>
+ *
+ * // With icons
  * <Button variant="outline" iconStart={PlusIcon}>
  *   Add Item
  * </Button>
+ *
+ * // As a link
+ * <Button asChild>
+ *   <a href="/dashboard">Dashboard</a>
+ * </Button>
  * ```
  */
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+const Button = forwardRef<ElementRef<"button">, ButtonProps>(
   (
     {
       className,
@@ -181,62 +303,62 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     },
     ref
   ) => {
+    // Animation preference
     const shouldDisableAnimation = useShouldDisableAnimation(disableAnimation);
     const isDisabled = disabled || loading;
+
+    // Ripple effect management
     const { ripples, createRipple } = useRipple();
 
-    // Only show ripple for certain variants (not ghost or link)
+    // Determine if ripple should show (not on ghost/link variants)
     const showRipple = variant !== "ghost" && variant !== "link";
 
-    const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-      if (!loading && !success && showRipple) {
-        createRipple(event);
-      }
-      onClick?.(event);
-    };
+    /**
+     * Handle click with ripple creation
+     */
+    const handleClick = useCallback(
+      (event: React.MouseEvent<HTMLButtonElement>) => {
+        if (!loading && !success && showRipple) {
+          createRipple(event);
+        }
+        onClick?.(event);
+      },
+      [loading, success, showRipple, createRipple, onClick]
+    );
 
-    // Common props for both animated and non-animated versions
-    const commonProps = {
-      "data-slot": "button",
-      className: cn(
-        buttonVariants({ variant, size, className }),
-        showRipple && "relative overflow-hidden"
-      ),
-      disabled: isDisabled,
-      "aria-busy": loading,
-      "aria-disabled": isDisabled,
-      onClick: handleClick,
-      ...props,
-    };
+    // =========================================================================
+    // Determine icon sizes based on button size
+    // =========================================================================
+    const iconSize = size === "sm" || size === "icon-sm" ? 14 : 16;
 
-    // Icon content - use stable rendering without AnimatePresence to prevent flickering
-    // When success: show checkmark (replaces iconStart position)
-    // When loading: show spinner (replaces iconStart position, or standalone if no iconStart)
-    // When not loading/success: show iconStart if provided
+    // =========================================================================
+    // Icon content - stable rendering without AnimatePresence
+    // =========================================================================
     const iconStartContent =
       IconStart && !loading && !success ? (
         <IconStart
           key="icon-start"
           className="shrink-0"
-          size={size === "sm" || size === "icon-sm" ? 14 : 16}
+          size={iconSize}
+          aria-hidden="true"
         />
       ) : null;
 
-    // Single loading spinner - only one spinner ever shown
     const loadingSpinner = loading ? (
       <LoadingSpinner
         key="loading-spinner"
-        size={size === "sm" || size === "icon-sm" ? 14 : 16}
+        size={iconSize}
+        aria-hidden="true"
       />
     ) : null;
 
-    // Success checkmark
     const successCheck =
       success && !loading ? (
         <AnimatedCheck
           key="success-check"
-          size={size === "sm" || size === "icon-sm" ? 14 : 16}
+          size={iconSize}
           className="shrink-0"
+          aria-hidden="true"
         />
       ) : null;
 
@@ -245,11 +367,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         <IconEnd
           key="icon-end"
           className="shrink-0"
-          size={size === "sm" || size === "icon-sm" ? 14 : 16}
+          size={iconSize}
+          aria-hidden="true"
         />
       ) : null;
 
-    // Content wrapper
+    // =========================================================================
+    // Content wrapper with icons and children
+    // =========================================================================
     const buttonContent = (
       <>
         <span className="relative z-10 flex items-center justify-center gap-2">
@@ -259,13 +384,16 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           {children}
           {iconEndContent}
         </span>
+
+        {/* Ripple container */}
         {showRipple && (
           <span
-            className="pointer-events-none absolute inset-0"
+            className="pointer-events-none absolute inset-0 overflow-hidden"
             style={{
               opacity: loading || success ? 0 : 1,
               transition: "opacity 200ms ease-out",
             }}
+            aria-hidden="true"
           >
             {ripples.map((ripple) => (
               <span
@@ -277,7 +405,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
                   top: `${ripple.y}px`,
                   left: `${ripple.x}px`,
                   backgroundColor: "currentColor",
-                  transform: `scale(0)`,
+                  transform: "scale(0)",
                 }}
               />
             ))}
@@ -286,7 +414,27 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       </>
     );
 
-    // Use Slot for asChild
+    // =========================================================================
+    // Common props for all button variations
+    // =========================================================================
+    const commonProps = {
+      "data-slot": "button",
+      "data-loading": loading || undefined,
+      "data-success": success || undefined,
+      className: cn(
+        buttonVariants({ variant, size, className }),
+        showRipple && "relative overflow-hidden"
+      ),
+      disabled: isDisabled,
+      "aria-busy": loading || undefined,
+      "aria-disabled": isDisabled || undefined,
+      onClick: handleClick,
+      ...props,
+    };
+
+    // =========================================================================
+    // Render: asChild pattern using Slot
+    // =========================================================================
     if (asChild) {
       return (
         <Slot ref={ref} {...commonProps}>
@@ -295,7 +443,9 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     }
 
-    // Non-animated version
+    // =========================================================================
+    // Render: Non-animated version
+    // =========================================================================
     if (shouldDisableAnimation) {
       return (
         <button ref={ref} {...commonProps}>
@@ -304,22 +454,24 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       );
     }
 
-    // Animated version with motion.button
-    // Extract motion-conflicting props from commonProps
+    // =========================================================================
+    // Render: Animated version with motion.button
+    // =========================================================================
+    // Extract motion-conflicting props
     const {
       onAnimationStart: _onAnimationStart,
       onDrag: _onDrag,
       onDragStart: _onDragStart,
       onDragEnd: _onDragEnd,
       ...restCommonProps
-    } = commonProps;
+    } = commonProps as typeof commonProps & Partial<HTMLMotionProps<"button">>;
 
     return (
       <motion.button
         ref={ref}
         {...restCommonProps}
-        whileTap={isDisabled ? undefined : { scale: 0.97 }}
-        whileHover={isDisabled ? undefined : { scale: 1.01 }}
+        whileTap={isDisabled ? undefined : gestures.button.whileTap}
+        whileHover={isDisabled ? undefined : gestures.button.whileHover}
         transition={springPresets.interactive}
       >
         {buttonContent}
@@ -331,30 +483,37 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = "Button";
 
 // =============================================================================
-// ICON BUTTON
+// ICON BUTTON COMPONENT
 // Specialized button for icon-only usage
 // =============================================================================
 
-export type IconButtonProps = {
-  /** The icon to display */
+/**
+ * IconButton component props
+ */
+export interface IconButtonProps
+  extends Omit<ButtonProps, "iconStart" | "iconEnd" | "children" | "asChild"> {
+  /**
+   * The icon to display (required)
+   */
   icon: LucideIcon;
-  /** Accessible label (required for icon-only buttons) */
+
+  /**
+   * Accessible label (required for icon-only buttons)
+   */
   "aria-label": string;
-  /** Show loading spinner */
-  loading?: boolean;
-  /** Disable animations */
-  disableAnimation?: boolean;
-} & Omit<ButtonProps, "iconStart" | "iconEnd" | "children" | "asChild">;
+}
 
 /**
  * IconButton - Icon-only button with proper accessibility
  *
+ * Forces an aria-label for accessibility since there's no visible text.
+ *
  * @example
  * ```tsx
- * <IconButton icon={XIcon} aria-label="Close" variant="ghost" />
+ * <IconButton icon={XIcon} aria-label="Close dialog" variant="ghost" />
  * ```
  */
-const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
+const IconButton = forwardRef<ElementRef<"button">, IconButtonProps>(
   ({ icon, size = "icon", ...props }, ref) => {
     return <Button ref={ref} size={size} iconStart={icon} {...props} />;
   }
@@ -367,3 +526,4 @@ IconButton.displayName = "IconButton";
 // =============================================================================
 
 export { Button, IconButton, buttonVariants };
+export type { ButtonProps as ButtonRootProps };

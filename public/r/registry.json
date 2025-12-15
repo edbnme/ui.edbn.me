@@ -29,14 +29,15 @@
       "name": "alert-dialog",
       "type": "registry:ui",
       "title": "Alert Dialog",
-      "description": "Animated modal dialog with morphing animations and focus trap.",
+      "description": "Animated modal dialog with morphing animations, focus trap, and controlled/uncontrolled state.",
       "dependencies": [
         "motion",
         "lucide-react",
         "tw-animate-css"
       ],
       "registryDependencies": [
-        "utils"
+        "utils",
+        "button"
       ],
       "files": [
         {
@@ -49,7 +50,7 @@
       "name": "popover",
       "type": "registry:ui",
       "title": "Popover",
-      "description": "Animated popover component with morphing transitions and click-outside handling.",
+      "description": "Animated popover component with morphing transitions, focus trap, and click-outside handling.",
       "dependencies": [
         "motion",
         "tw-animate-css"
@@ -58,10 +59,6 @@
         "utils"
       ],
       "files": [
-        {
-          "path": "hooks/useClickOutside.tsx",
-          "type": "registry:hook"
-        },
         {
           "path": "components/ui/popover.tsx",
           "type": "registry:ui"
@@ -119,6 +116,37 @@
       ]
     },
     {
+      "name": "animations",
+      "type": "registry:lib",
+      "title": "Animations",
+      "description": "Motion system with spring presets, transitions, and variant factories.",
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "lib/animations.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "tokens",
+      "type": "registry:lib",
+      "title": "Design Tokens",
+      "description": "Centralized design tokens for colors, spacing, typography, shadows, and more.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "lib/tokens.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
       "name": "icons",
       "type": "registry:lib",
       "title": "Animated Icons",
@@ -148,6 +176,48 @@
       "files": [
         {
           "path": "hooks/useClickOutside.tsx",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-stable-id",
+      "type": "registry:hook",
+      "title": "useStableId",
+      "description": "SSR-safe hook for generating stable unique IDs for accessibility attributes.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/useStableId.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-controllable-state",
+      "type": "registry:hook",
+      "title": "useControllableState",
+      "description": "Hook for handling controlled/uncontrolled state pattern in components.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/useControllableState.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-merged-refs",
+      "type": "registry:hook",
+      "title": "useMergedRefs",
+      "description": "Hook to merge multiple refs into a single callback ref.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/useMergedRefs.ts",
           "type": "registry:hook"
         }
       ]

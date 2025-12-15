@@ -83,6 +83,13 @@ export const transitions = {
     duration: 0.2,
   } as Transition,
   
+  /** For morphing popover with layoutId */
+  morphingPopover: {
+    type: 'spring' as const,
+    bounce: 0.05,
+    duration: 0.3,
+  } as Transition,
+  
   /** For sheet slide-in animations */
   sheet: {
     ...springPresets.smooth,
@@ -232,6 +239,50 @@ export function createStaggerItemVariants(options?: {
     initial: { opacity: 0, y, scale },
     animate: { opacity: 1, y: 0, scale: 1 },
     exit: { opacity: 0, y: y / 2, scale },
+  };
+}
+
+/**
+ * Creates morphing popover variants with blur
+ */
+export function createMorphingPopoverVariants(options?: {
+  initialScale?: number;
+  exitScale?: number;
+  initialBlur?: number;
+  exitBlur?: number;
+}): Variants {
+  const {
+    initialScale = 0.9,
+    exitScale = 0.95,
+    initialBlur = 10,
+    exitBlur = 10,
+  } = options ?? {};
+
+  return {
+    initial: {
+      opacity: 0,
+      scale: initialScale,
+      filter: `blur(${initialBlur}px)`,
+    },
+    animate: {
+      opacity: 1,
+      scale: 1,
+      filter: 'blur(0px)',
+      transition: {
+        type: 'spring',
+        bounce: 0,
+        duration: 0.3,
+        staggerChildren: 0.05,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: exitScale,
+      filter: `blur(${exitBlur}px)`,
+      transition: {
+        duration: 0.2,
+      },
+    },
   };
 }
 

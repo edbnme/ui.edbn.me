@@ -1,160 +1,229 @@
+/**
+ * Popover Component
+ *
+ * A styled, reusable UI component for displaying rich content in a portal-like layer.
+ * Features morphing animations, focus management, and full accessibility.
+ *
+ * Based on WAI-ARIA Disclosure and Dialog patterns.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
 // =============================================================================
 // IMPORTS
 // =============================================================================
 
+// 1. React imports
 import * as React from "react";
 import {
-  useState,
-  useId,
-  useRef,
-  useEffect,
   createContext,
   useContext,
   useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  type ReactNode,
 } from "react";
+
+// 2. External library imports
 import {
+  motion,
   AnimatePresence,
   MotionConfig,
-  motion,
   type Transition,
   type Variants,
 } from "motion/react";
-import useClickOutside from "@/hooks/useClickOutside";
+
+// 3. Internal imports
 import { cn } from "@/lib/utils";
+import { createMorphingPopoverVariants } from "@/lib/animations";
+import { useShouldDisableAnimation } from "@/components/MotionProvider";
+import { useStableId } from "@/hooks/useStableId";
+import { useControllableBoolean } from "@/hooks/useControllableState";
+import useClickOutside from "@/hooks/useClickOutside";
 
 // =============================================================================
-// CONSTANTS
+// TYPES
 // =============================================================================
 
-const TRANSITION: Transition = {
-  type: "spring",
-  bounce: 0.05,
-  duration: 0.3,
-};
-
-const DEFAULT_VARIANTS: Variants = {
-  initial: {
-    opacity: 0,
-    scale: 0.9,
-    filter: "blur(10px)",
-  },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    filter: "blur(0px)",
-    transition: {
-      type: "spring",
-      bounce: 0,
-      duration: 0.3,
-      staggerChildren: 0.05,
-    },
-  },
-  exit: {
-    opacity: 0,
-    scale: 0.95,
-    filter: "blur(10px)",
-    transition: {
-      duration: 0.2,
-    },
-  },
-};
+/**
+ * Context value for Popover state management
+ */
+interface PopoverContextValue {
+  /** Whether the popover is open */
+  isOpen: boolean;
+  /** Set the open state */
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  /** Open the popover */
+  open: () => void;
+  /** Close the popover */
+  close: () => void;
+  /** Toggle the popover */
+  toggle: () => void;
+  /** Unique ID for ARIA attributes */
+  uniqueId: string;
+  /** Ref to the trigger element for focus return */
+  triggerRef: React.RefObject<HTMLElement | null>;
+  /** Ref to the content element */
+  contentRef: React.RefObject<HTMLDivElement | null>;
+  /** Whether animations are disabled */
+  disableAnimation: boolean;
+  /** Custom animation variants */
+  variants: Variants;
+}
 
 // =============================================================================
 // CONTEXT
 // =============================================================================
 
-type PopoverContextValue = {
-  isOpen: boolean;
-  open: () => void;
-  close: () => void;
-  uniqueId: string;
-  variants?: Variants;
-};
-
 const PopoverContext = createContext<PopoverContextValue | null>(null);
 
-// =============================================================================
-// HOOKS
-// =============================================================================
-
-function usePopoverLogic({
-  defaultOpen = false,
-  open: controlledOpen,
-  onOpenChange,
-}: {
-  defaultOpen?: boolean;
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-} = {}) {
-  const uniqueId = useId();
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(defaultOpen);
-
-  const isOpen = controlledOpen ?? uncontrolledOpen;
-
-  const open = useCallback(() => {
-    if (controlledOpen === undefined) {
-      setUncontrolledOpen(true);
-    }
-    onOpenChange?.(true);
-  }, [controlledOpen, onOpenChange]);
-
-  const close = useCallback(() => {
-    if (controlledOpen === undefined) {
-      setUncontrolledOpen(false);
-    }
-    onOpenChange?.(false);
-  }, [controlledOpen, onOpenChange]);
-
-  return { isOpen, open, close, uniqueId };
+/**
+ * Hook to access Popover context
+ * @param componentName - Name of the component using this hook (for error messages)
+ * @throws Error if used outside Popover
+ */
+function usePopover(componentName = "PopoverTrigger"): PopoverContextValue {
+  const context = useContext(PopoverContext);
+  if (!context) {
+    throw new Error(`${componentName} must be used within Popover`);
+  }
+  return context;
 }
+
+// =============================================================================
+// SPRING PRESETS FOR POPOVER
+// =============================================================================
+
+const popoverTransition: Transition = {
+  type: "spring" as const,
+  bounce: 0.15,
+  duration: 0.45,
+};
+
+const DEFAULT_VARIANTS: Variants = createMorphingPopoverVariants();
+
+// =============================================================================
+// UTILITY HOOKS
+// =============================================================================
+
+// Removed unused useIsMounted - using context for mount state
 
 // =============================================================================
 // POPOVER ROOT
 // =============================================================================
 
-export type PopoverProps = {
-  children: React.ReactNode;
+/**
+ * PopoverRoot props
+ */
+export interface PopoverRootProps {
+  /** Child components */
+  children: ReactNode;
+  /** Custom transition for animations */
   transition?: Transition;
-  defaultOpen?: boolean;
+  /** Controlled open state */
   open?: boolean;
+  /** Default open state (uncontrolled) */
+  defaultOpen?: boolean;
+  /** Callback when open state changes */
   onOpenChange?: (open: boolean) => void;
+  /** Disable all animations */
+  disableAnimation?: boolean;
+  /** Custom animation variants */
   variants?: Variants;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<"div">;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
 /**
- * Popover - A styled, reusable UI component for displaying rich content in a portal-like layer.
+ * Popover.Root - Container component that manages popover state
  *
- * Features:
- * - Controlled and Uncontrolled state support
- * - Morphing animations via layoutId
- * - Click outside to close
- * - Escape key to close
- * - Accessibility attributes (aria-expanded, aria-controls, role=dialog)
+ * Provides context for all child components and handles
+ * controlled/uncontrolled state management.
+ *
+ * @example
+ * ```tsx
+ * <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
+ *   <Popover.Trigger>Open</Popover.Trigger>
+ *   <Popover.Content>...</Popover.Content>
+ * </Popover.Root>
+ * ```
  */
-function Popover({
+function PopoverRoot({
   children,
-  transition = TRANSITION,
-  defaultOpen,
+  transition = popoverTransition,
   open,
+  defaultOpen = false,
   onOpenChange,
-  variants,
+  disableAnimation: disableAnimationProp,
+  variants = DEFAULT_VARIANTS,
   className,
-  ...props
-}: PopoverProps) {
-  const popoverLogic = usePopoverLogic({ defaultOpen, open, onOpenChange });
+  style,
+}: PopoverRootProps) {
+  // Controlled/uncontrolled state
+  const [isOpen, setIsOpen] = useControllableBoolean({
+    value: open,
+    defaultValue: defaultOpen,
+    onChange: onOpenChange,
+  });
+
+  // Generate stable IDs
+  const uniqueId = useStableId("popover");
+
+  // Refs for focus management
+  const triggerRef = useRef<HTMLElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Animation preference
+  const shouldDisableAnimation =
+    useShouldDisableAnimation(disableAnimationProp);
+
+  // Convenience methods
+  const openPopover = useCallback(() => setIsOpen(true), [setIsOpen]);
+  const closePopover = useCallback(() => setIsOpen(false), [setIsOpen]);
+  const togglePopover = useCallback(
+    () => setIsOpen((prev) => !prev),
+    [setIsOpen]
+  );
+
+  // Memoized context value
+  const contextValue = useMemo<PopoverContextValue>(
+    () => ({
+      isOpen,
+      setIsOpen,
+      open: openPopover,
+      close: closePopover,
+      toggle: togglePopover,
+      uniqueId,
+      triggerRef,
+      contentRef,
+      disableAnimation: shouldDisableAnimation,
+      variants,
+    }),
+    [
+      isOpen,
+      setIsOpen,
+      openPopover,
+      closePopover,
+      togglePopover,
+      uniqueId,
+      shouldDisableAnimation,
+      variants,
+    ]
+  );
 
   return (
-    <PopoverContext.Provider
-      value={{ ...popoverLogic, variants: variants || DEFAULT_VARIANTS }}
-    >
+    <PopoverContext.Provider value={contextValue}>
       <MotionConfig transition={transition}>
         <div
           className={cn("relative flex items-center justify-center", className)}
-          key={popoverLogic.uniqueId}
-          {...props}
+          style={style}
+          data-slot="popover"
+          data-state={isOpen ? "open" : "closed"}
         >
           {children}
         </div>
@@ -163,306 +232,809 @@ function Popover({
   );
 }
 
+PopoverRoot.displayName = "Popover.Root";
+
 // =============================================================================
 // POPOVER TRIGGER
 // =============================================================================
 
-export type PopoverTriggerProps = {
-  children: React.ReactNode;
+/**
+ * PopoverTrigger props
+ */
+export interface PopoverTriggerProps {
+  /** Child content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
+  /** Inline styles */
+  style?: React.CSSProperties;
+  /** Merge props with child element */
   asChild?: boolean;
-} & React.ComponentProps<typeof motion.button>;
+}
 
-const PopoverTrigger = React.forwardRef<HTMLButtonElement, PopoverTriggerProps>(
-  ({ children, className, asChild = false, ...props }, ref) => {
-    const context = useContext(PopoverContext);
-    if (!context) {
-      throw new Error("PopoverTrigger must be used within Popover");
-    }
+/**
+ * Popover.Trigger - Button that opens the popover
+ *
+ * Uses layoutId for smooth morphing animation into the popover.
+ * The trigger hides when popover opens to create seamless morph effect.
+ */
+function PopoverTrigger({
+  children,
+  className,
+  style,
+  asChild = false,
+}: PopoverTriggerProps) {
+  const { open, isOpen, uniqueId, triggerRef, disableAnimation } =
+    usePopover("PopoverTrigger");
 
-    if (asChild && React.isValidElement(children)) {
+  const handleClick = useCallback(() => {
+    open();
+  }, [open]);
+
+  const handleKeyDown = useCallback(
+    (event: React.KeyboardEvent) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        open();
+      }
+    },
+    [open]
+  );
+
+  // Common ARIA and data attributes
+  const commonProps = {
+    onClick: handleClick,
+    onKeyDown: handleKeyDown,
+    "aria-haspopup": "dialog" as const,
+    "aria-expanded": isOpen,
+    "aria-controls": `popover-content-${uniqueId}`,
+    "data-slot": "popover-trigger",
+    "data-state": isOpen ? "open" : "closed",
+  };
+
+  // asChild pattern - merge props with child
+  if (asChild && React.isValidElement(children)) {
+    const childElement = children as React.ReactElement<
+      Record<string, unknown>
+    >;
+
+    if (!disableAnimation) {
       return (
         <motion.div
-          layoutId={`popover-trigger-${context.uniqueId}`}
+          layoutId={`popover-trigger-${uniqueId}`}
           className={cn("inline-flex", className)}
-          onClick={context.open}
-          {...(props as React.ComponentProps<typeof motion.div>)}
+          style={{
+            ...style,
+            opacity: isOpen ? 0 : 1,
+            pointerEvents: isOpen ? "none" : "auto",
+          }}
         >
-          {children}
+          {React.cloneElement(childElement, commonProps)}
         </motion.div>
       );
     }
 
+    // Non-animated asChild - wrap in div for ref capture
+    return (
+      <div
+        ref={triggerRef as React.RefObject<HTMLDivElement>}
+        className="contents"
+      >
+        {React.cloneElement(childElement, commonProps)}
+      </div>
+    );
+  }
+
+  // Default button trigger with morphing
+  if (!disableAnimation) {
     return (
       <motion.button
-        ref={ref}
-        layoutId={`popover-trigger-${context.uniqueId}`}
+        ref={triggerRef as React.RefObject<HTMLButtonElement>}
+        layoutId={`popover-trigger-${uniqueId}`}
         className={cn("inline-flex items-center justify-center", className)}
-        onClick={context.open}
-        aria-expanded={context.isOpen}
-        aria-controls={`popover-content-${context.uniqueId}`}
-        {...props}
+        style={{
+          ...style,
+          opacity: isOpen ? 0 : 1,
+          pointerEvents: isOpen ? "none" : "auto",
+        }}
+        type="button"
+        {...commonProps}
       >
         {children}
       </motion.button>
     );
   }
-);
-PopoverTrigger.displayName = "PopoverTrigger";
+
+  // Non-animated trigger
+  return (
+    <button
+      ref={triggerRef as React.RefObject<HTMLButtonElement>}
+      className={cn("inline-flex items-center justify-center", className)}
+      style={style}
+      type="button"
+      {...commonProps}
+    >
+      {children}
+    </button>
+  );
+}
+
+PopoverTrigger.displayName = "Popover.Trigger";
 
 // =============================================================================
 // POPOVER LABEL
 // =============================================================================
 
-export type PopoverLabelProps = {
-  children: React.ReactNode;
+/**
+ * PopoverLabel props
+ */
+export interface PopoverLabelProps {
+  /** Label content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.span>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverLabel = React.forwardRef<HTMLSpanElement, PopoverLabelProps>(
-  ({ children, className, ...props }, ref) => {
-    const context = useContext(PopoverContext);
-    if (!context) {
-      throw new Error("PopoverLabel must be used within Popover");
-    }
+/**
+ * Popover.Label - Morphing label that transitions with the popover
+ */
+function PopoverLabel({ children, className, style }: PopoverLabelProps) {
+  const { uniqueId, disableAnimation } = usePopover("PopoverLabel");
 
+  if (!disableAnimation) {
     return (
       <motion.span
-        ref={ref}
-        layoutId={`popover-label-${context.uniqueId}`}
+        layoutId={`popover-label-${uniqueId}`}
         className={cn("inline-flex items-center gap-2", className)}
-        {...props}
+        style={style}
+        data-slot="popover-label"
       >
         {children}
       </motion.span>
     );
   }
-);
-PopoverLabel.displayName = "PopoverLabel";
+
+  return (
+    <span
+      className={cn("inline-flex items-center gap-2", className)}
+      style={style}
+      data-slot="popover-label"
+    >
+      {children}
+    </span>
+  );
+}
+
+PopoverLabel.displayName = "Popover.Label";
 
 // =============================================================================
 // POPOVER CONTENT
 // =============================================================================
 
-export type PopoverContentProps = {
-  children: React.ReactNode;
+/**
+ * PopoverContent props
+ */
+export interface PopoverContentProps {
+  /** Child content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.div>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+  /** Close on Escape key (default: true) */
+  closeOnEscape?: boolean;
+  /** Close on click outside (default: true) */
+  closeOnClickOutside?: boolean;
+}
 
-const PopoverContent = React.forwardRef<HTMLDivElement, PopoverContentProps>(
-  ({ children, className, ...props }, ref) => {
-    const context = useContext(PopoverContext);
-    if (!context) throw new Error("PopoverContent must be used within Popover");
+/**
+ * Popover.Content - Main popover panel
+ *
+ * Contains the popover content with morphing animation.
+ * Handles focus trapping and keyboard interactions.
+ */
+function PopoverContent({
+  children,
+  className,
+  style,
+  closeOnEscape = true,
+  closeOnClickOutside = true,
+}: PopoverContentProps) {
+  const { isOpen, close, uniqueId, contentRef, disableAnimation, variants } =
+    usePopover("PopoverContent");
 
-    const contentRef = useRef<HTMLDivElement>(null);
-    React.useImperativeHandle(ref, () => contentRef.current!);
+  // Focus trap refs
+  const firstFocusableRef = useRef<HTMLElement | null>(null);
+  const lastFocusableRef = useRef<HTMLElement | null>(null);
 
-    useClickOutside(contentRef, context.close);
+  // Handle click outside
+  useClickOutside(contentRef, () => {
+    if (closeOnClickOutside) {
+      close();
+    }
+  });
 
-    const { isOpen, close } = context;
+  // Handle escape key and focus trap
+  useEffect(() => {
+    if (!isOpen) return;
 
-    useEffect(() => {
-      if (!isOpen) return;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Escape key handling
+      if (event.key === "Escape" && closeOnEscape) {
+        close();
+        event.preventDefault();
+        return;
+      }
 
-      const handleKeyDown = (event: KeyboardEvent) => {
-        if (event.key === "Escape") close();
-      };
+      // Focus trap with Tab key
+      if (event.key === "Tab") {
+        const first = firstFocusableRef.current;
+        const last = lastFocusableRef.current;
 
-      document.addEventListener("keydown", handleKeyDown);
-      return () => document.removeEventListener("keydown", handleKeyDown);
-    }, [isOpen, close]);
+        if (!first || !last) return;
 
-    return (
-      <AnimatePresence mode="wait">
-        {context.isOpen && (
-          <motion.div
+        if (event.shiftKey) {
+          if (document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, close, closeOnEscape]);
+
+  // Initial focus management
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const contentElement = contentRef.current;
+    if (!contentElement) return;
+
+    // Find focusable elements
+    const focusableSelector =
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const focusableElements =
+      contentElement.querySelectorAll(focusableSelector);
+
+    if (focusableElements.length > 0) {
+      firstFocusableRef.current = focusableElements[0] as HTMLElement;
+      lastFocusableRef.current = focusableElements[
+        focusableElements.length - 1
+      ] as HTMLElement;
+
+      // Focus first element after animation
+      requestAnimationFrame(() => {
+        (focusableElements[0] as HTMLElement).focus();
+      });
+    }
+  }, [isOpen, contentRef]);
+
+  // Content styles
+  const contentClasses = cn(
+    "absolute z-50",
+    "min-w-[300px] max-w-[95vw]",
+    "overflow-hidden rounded-2xl",
+    "border border-border",
+    "bg-background",
+    "shadow-2xl shadow-black/20 dark:shadow-black/50",
+    "outline-none focus:outline-none",
+    className
+  );
+
+  // Animated version with morphing
+  return (
+    <AnimatePresence mode="wait">
+      {isOpen &&
+        (disableAnimation ? (
+          <div
             ref={contentRef}
-            layoutId={`popover-trigger-${context.uniqueId}`}
-            id={`popover-content-${context.uniqueId}`}
+            className={contentClasses}
+            style={{
+              ...style,
+              isolation: "isolate",
+            }}
             role="dialog"
             aria-modal="true"
-            className={cn(
-              "absolute z-50 min-w-[300px] max-w-[95vw] overflow-hidden rounded-2xl border border-zinc-200 bg-white/90 shadow-xl backdrop-blur-xl dark:border-zinc-800 dark:bg-zinc-900/90",
-              className
-            )}
+            aria-labelledby={`popover-title-${uniqueId}`}
+            aria-describedby={`popover-description-${uniqueId}`}
+            id={`popover-content-${uniqueId}`}
+            data-slot="popover-content"
+            data-state="open"
+          >
+            {children}
+          </div>
+        ) : (
+          <motion.div
+            ref={contentRef}
+            layoutId={`popover-trigger-${uniqueId}`}
+            className={contentClasses}
+            style={{
+              ...style,
+              isolation: "isolate",
+              willChange: "transform, opacity",
+            }}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby={`popover-title-${uniqueId}`}
+            aria-describedby={`popover-description-${uniqueId}`}
+            id={`popover-content-${uniqueId}`}
+            data-slot="popover-content"
+            data-state="open"
             initial="initial"
             animate="animate"
             exit="exit"
-            variants={context.variants}
-            {...props}
+            variants={variants}
           >
             {children}
           </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  }
-);
-PopoverContent.displayName = "PopoverContent";
+        ))}
+    </AnimatePresence>
+  );
+}
+
+PopoverContent.displayName = "Popover.Content";
 
 // =============================================================================
 // POPOVER HEADER
 // =============================================================================
 
-export type PopoverHeaderProps = {
-  children: React.ReactNode;
+/**
+ * PopoverHeader props
+ */
+export interface PopoverHeaderProps {
+  /** Header content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.div>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverHeader = React.forwardRef<HTMLDivElement, PopoverHeaderProps>(
-  ({ children, className, ...props }, ref) => {
+/**
+ * Popover.Header - Header section for title and description
+ */
+function PopoverHeader({ children, className, style }: PopoverHeaderProps) {
+  const { disableAnimation } = usePopover("PopoverHeader");
+
+  const headerClasses = cn(
+    "flex flex-col items-start gap-2",
+    "border-b border-border",
+    "px-5 py-4",
+    "bg-background",
+    className
+  );
+
+  if (!disableAnimation) {
     return (
       <motion.div
-        ref={ref}
-        className={cn(
-          "flex flex-col items-start gap-1 border-b border-zinc-100 px-4 py-2.5 dark:border-zinc-800",
-          className
-        )}
-        {...props}
+        className={headerClasses}
+        style={{
+          ...style,
+          isolation: "isolate",
+          position: "relative",
+          zIndex: 2,
+        }}
+        data-slot="popover-header"
       >
         {children}
       </motion.div>
     );
   }
-);
-PopoverHeader.displayName = "PopoverHeader";
+
+  return (
+    <div
+      className={headerClasses}
+      style={{
+        ...style,
+        isolation: "isolate",
+        position: "relative",
+        zIndex: 2,
+      }}
+      data-slot="popover-header"
+    >
+      {children}
+    </div>
+  );
+}
+
+PopoverHeader.displayName = "Popover.Header";
 
 // =============================================================================
 // POPOVER TITLE
 // =============================================================================
 
-export type PopoverTitleProps = {
-  children: React.ReactNode;
+/**
+ * PopoverTitle props
+ */
+export interface PopoverTitleProps {
+  /** Title content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.h2>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverTitle = React.forwardRef<HTMLHeadingElement, PopoverTitleProps>(
-  ({ children, className, ...props }, ref) => {
-    const context = useContext(PopoverContext);
-    if (!context) {
-      throw new Error("PopoverTitle must be used within Popover");
-    }
+/**
+ * Popover.Title - Title with morphing animation from trigger label
+ */
+function PopoverTitle({ children, className, style }: PopoverTitleProps) {
+  const { uniqueId, disableAnimation } = usePopover("PopoverTitle");
 
+  const titleClasses = cn(
+    "flex items-center gap-2",
+    "text-sm font-semibold leading-none",
+    "text-foreground",
+    className
+  );
+
+  if (!disableAnimation) {
     return (
       <motion.h2
-        ref={ref}
-        layoutId={`popover-label-${context.uniqueId}`}
-        className={cn(
-          "flex items-center gap-2 text-sm font-medium leading-none text-zinc-900 dark:text-zinc-100",
-          className
-        )}
-        {...props}
+        id={`popover-title-${uniqueId}`}
+        layoutId={`popover-label-${uniqueId}`}
+        className={titleClasses}
+        style={style}
+        data-slot="popover-title"
       >
         {children}
       </motion.h2>
     );
   }
-);
-PopoverTitle.displayName = "PopoverTitle";
+
+  return (
+    <h2
+      id={`popover-title-${uniqueId}`}
+      className={titleClasses}
+      style={style}
+      data-slot="popover-title"
+    >
+      {children}
+    </h2>
+  );
+}
+
+PopoverTitle.displayName = "Popover.Title";
 
 // =============================================================================
 // POPOVER DESCRIPTION
 // =============================================================================
 
-export type PopoverDescriptionProps = {
-  children: React.ReactNode;
+/**
+ * PopoverDescription props
+ */
+export interface PopoverDescriptionProps {
+  /** Description content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.p>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverDescription = React.forwardRef<
-  HTMLParagraphElement,
-  PopoverDescriptionProps
->(({ children, className, ...props }, ref) => {
+/**
+ * Popover.Description - Description text with fade animation
+ */
+function PopoverDescription({
+  children,
+  className,
+  style,
+}: PopoverDescriptionProps) {
+  const { uniqueId, disableAnimation } = usePopover("PopoverDescription");
+
+  const descriptionClasses = cn("text-sm text-muted-foreground", className);
+
+  if (!disableAnimation) {
+    return (
+      <motion.p
+        id={`popover-description-${uniqueId}`}
+        className={descriptionClasses}
+        style={style}
+        variants={{
+          initial: { opacity: 0, y: 5 },
+          animate: { opacity: 1, y: 0 },
+          exit: { opacity: 0, y: 5 },
+        }}
+        data-slot="popover-description"
+      >
+        {children}
+      </motion.p>
+    );
+  }
+
   return (
-    <motion.p
-      ref={ref}
-      variants={{
-        initial: { opacity: 0, y: 5 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 5 },
-      }}
-      className={cn("text-sm text-zinc-500 dark:text-zinc-400", className)}
-      {...props}
+    <p
+      id={`popover-description-${uniqueId}`}
+      className={descriptionClasses}
+      style={style}
+      data-slot="popover-description"
     >
       {children}
-    </motion.p>
+    </p>
   );
-});
-PopoverDescription.displayName = "PopoverDescription";
+}
+
+PopoverDescription.displayName = "Popover.Description";
 
 // =============================================================================
 // POPOVER BODY
 // =============================================================================
 
-export type PopoverBodyProps = {
-  children: React.ReactNode;
+/**
+ * PopoverBody props
+ */
+export interface PopoverBodyProps {
+  /** Body content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.div>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverBody = React.forwardRef<HTMLDivElement, PopoverBodyProps>(
-  ({ children, className, ...props }, ref) => {
+/**
+ * Popover.Body - Main content area with fade animation
+ */
+function PopoverBody({ children, className, style }: PopoverBodyProps) {
+  const { disableAnimation } = usePopover("PopoverBody");
+
+  const bodyClasses = cn("p-5 bg-background", className);
+
+  if (!disableAnimation) {
     return (
       <motion.div
-        ref={ref}
-        className={cn("p-4", className)}
+        className={bodyClasses}
+        style={{
+          ...style,
+          isolation: "isolate",
+          position: "relative",
+          zIndex: 1,
+        }}
         variants={{
           initial: { opacity: 0, y: 10 },
           animate: { opacity: 1, y: 0 },
           exit: { opacity: 0, y: 10 },
         }}
-        {...props}
+        data-slot="popover-body"
       >
         {children}
       </motion.div>
     );
   }
-);
-PopoverBody.displayName = "PopoverBody";
+
+  return (
+    <div
+      className={bodyClasses}
+      style={{
+        ...style,
+        isolation: "isolate",
+        position: "relative",
+        zIndex: 1,
+      }}
+      data-slot="popover-body"
+    >
+      {children}
+    </div>
+  );
+}
+
+PopoverBody.displayName = "Popover.Body";
 
 // =============================================================================
 // POPOVER FOOTER
 // =============================================================================
 
-export type PopoverFooterProps = {
-  children: React.ReactNode;
+/**
+ * PopoverFooter props
+ */
+export interface PopoverFooterProps {
+  /** Footer content */
+  children: ReactNode;
+  /** Additional CSS classes */
   className?: string;
-} & React.ComponentProps<typeof motion.div>;
+  /** Inline styles */
+  style?: React.CSSProperties;
+}
 
-const PopoverFooter = React.forwardRef<HTMLDivElement, PopoverFooterProps>(
-  ({ children, className, ...props }, ref) => {
+/**
+ * Popover.Footer - Footer section for action buttons
+ */
+function PopoverFooter({ children, className, style }: PopoverFooterProps) {
+  const { disableAnimation } = usePopover("PopoverFooter");
+
+  const footerClasses = cn(
+    "flex items-center justify-end gap-2",
+    "border-t border-border",
+    "px-5 py-3.5",
+    "bg-background",
+    className
+  );
+
+  if (!disableAnimation) {
     return (
       <motion.div
-        ref={ref}
-        className={cn(
-          "flex items-center justify-end gap-2 border-t border-zinc-100 px-4 py-2.5 dark:border-zinc-800",
-          className
-        )}
+        className={footerClasses}
+        style={{
+          ...style,
+          isolation: "isolate",
+          position: "relative",
+          zIndex: 2,
+        }}
         variants={{
           initial: { opacity: 0, y: 10 },
           animate: { opacity: 1, y: 0 },
           exit: { opacity: 0, y: 10 },
         }}
-        {...props}
+        data-slot="popover-footer"
       >
         {children}
       </motion.div>
     );
   }
-);
-PopoverFooter.displayName = "PopoverFooter";
+
+  return (
+    <div
+      className={footerClasses}
+      style={{
+        ...style,
+        isolation: "isolate",
+        position: "relative",
+        zIndex: 2,
+      }}
+      data-slot="popover-footer"
+    >
+      {children}
+    </div>
+  );
+}
+
+PopoverFooter.displayName = "Popover.Footer";
+
+// =============================================================================
+// POPOVER CLOSE
+// =============================================================================
+
+/**
+ * PopoverClose props
+ */
+export interface PopoverCloseProps {
+  /** Close button content or custom child */
+  children?: ReactNode;
+  /** Additional CSS classes */
+  className?: string;
+  /** Inline styles */
+  style?: React.CSSProperties;
+  /** Use custom child as button */
+  asChild?: boolean;
+}
+
+/**
+ * Popover.Close - Button that closes the popover
+ */
+function PopoverClose({
+  children = "Close",
+  className,
+  style,
+  asChild = false,
+}: PopoverCloseProps) {
+  const { close } = usePopover("PopoverClose");
+
+  const handleClick = useCallback(() => {
+    close();
+  }, [close]);
+
+  // asChild pattern
+  if (asChild && React.isValidElement(children)) {
+    const childElement = children as React.ReactElement<
+      Record<string, unknown>
+    >;
+    return React.cloneElement(childElement, {
+      onClick: handleClick,
+      "data-slot": "popover-close",
+    });
+  }
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        "inline-flex items-center justify-center",
+        "px-4 py-2 rounded-lg",
+        "text-sm font-medium",
+        "bg-secondary text-secondary-foreground",
+        "hover:bg-secondary/80",
+        "transition-colors duration-150",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className
+      )}
+      style={style}
+      onClick={handleClick}
+      data-slot="popover-close"
+    >
+      {children}
+    </button>
+  );
+}
+
+PopoverClose.displayName = "Popover.Close";
+
+// =============================================================================
+// COMPOUND COMPONENT EXPORT
+// =============================================================================
+
+/**
+ * Popover compound component with sub-components attached.
+ *
+ * Can be used as either:
+ * 1. Direct component: `<Popover>` (equivalent to `<Popover.Root>`)
+ * 2. Namespace pattern: `<Popover.Root>`, `<Popover.Trigger>`, etc.
+ *
+ * @example Direct usage (recommended for tests and simple cases)
+ * ```tsx
+ * <Popover>
+ *   <PopoverTrigger asChild>
+ *     <Button>Open</Button>
+ *   </PopoverTrigger>
+ *   <PopoverContent>
+ *     <PopoverTitle>Settings</PopoverTitle>
+ *     <PopoverDescription>Configure options</PopoverDescription>
+ *   </PopoverContent>
+ * </Popover>
+ * ```
+ *
+ * @example Namespace pattern (recommended for documentation)
+ * ```tsx
+ * <Popover.Root>
+ *   <Popover.Trigger asChild>
+ *     <Button>Open</Button>
+ *   </Popover.Trigger>
+ *   <Popover.Content>
+ *     <Popover.Title>Settings</Popover.Title>
+ *     <Popover.Description>Configure options</Popover.Description>
+ *   </Popover.Content>
+ * </Popover.Root>
+ * ```
+ */
+const Popover = Object.assign(PopoverRoot, {
+  Root: PopoverRoot,
+  Trigger: PopoverTrigger,
+  Label: PopoverLabel,
+  Content: PopoverContent,
+  Header: PopoverHeader,
+  Title: PopoverTitle,
+  Description: PopoverDescription,
+  Body: PopoverBody,
+  Footer: PopoverFooter,
+  Close: PopoverClose,
+});
 
 // =============================================================================
 // EXPORTS
 // =============================================================================
 
+// Primary export: Compound component with namespace
+export { Popover };
+
+// Named exports for direct imports
 export {
-  Popover,
+  PopoverRoot,
   PopoverTrigger,
+  PopoverLabel,
   PopoverContent,
   PopoverHeader,
   PopoverTitle,
   PopoverDescription,
   PopoverBody,
   PopoverFooter,
-  PopoverLabel,
+  PopoverClose,
 };
