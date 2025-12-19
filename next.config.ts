@@ -23,7 +23,7 @@ const nextConfig: NextConfig = {
       },
     ],
     // Reduce default quality for better performance (85 is visually lossless)
-    qualities: [85, 75],
+    qualities: [100, 85, 75],
     // Enable AVIF format for modern browsers (smaller than WebP)
     formats: ["image/avif", "image/webp"],
     // Minimize layout shift
