@@ -1,21 +1,107 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useEffect, useRef } from 'react';
+
+// Use useLayoutEffect on client, useEffect for SSR
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
+
+// Global lock counter for nested scroll locks
+let scrollLockCount = 0;
+let originalStyles: {
+  bodyOverflow: string;
+  bodyPaddingRight: string;
+  htmlOverflow: string;
+  scrollbarWidth: number;
+} | null = null;
 
 /**
- * Hook to prevent body scroll when a modal/sheet is open
+ * Get the scrollbar width reliably
+ */
+function getScrollbarWidth(): number {
+  // Create a temporary scrollable element
+  const outer = document.createElement('div');
+  outer.style.visibility = 'hidden';
+  outer.style.overflow = 'scroll';
+  document.body.appendChild(outer);
+
+  const inner = document.createElement('div');
+  outer.appendChild(inner);
+
+  const scrollbarWidth = outer.offsetWidth - inner.offsetWidth;
+  outer.remove();
+
+  return scrollbarWidth;
+}
+
+/**
+ * Apply scroll lock styles
+ */
+function lockScroll(reserveScrollBarGap: boolean): void {
+  scrollLockCount++;
+  
+  // Only apply on first lock
+  if (scrollLockCount > 1) return;
+
+  const scrollbarWidth = reserveScrollBarGap ? getScrollbarWidth() : 0;
+
+  // Store original styles
+  originalStyles = {
+    bodyOverflow: document.body.style.overflow,
+    bodyPaddingRight: document.body.style.paddingRight,
+    htmlOverflow: document.documentElement.style.overflow,
+    scrollbarWidth,
+  };
+
+  // Set CSS custom property for fixed elements
+  document.documentElement.style.setProperty('--scrollbar-width', `${scrollbarWidth}px`);
+  
+  // Lock scroll
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+
+  // Add padding to prevent layout shift
+  if (scrollbarWidth > 0) {
+    const currentPadding = parseInt(getComputedStyle(document.body).paddingRight, 10) || 0;
+    document.body.style.paddingRight = `${currentPadding + scrollbarWidth}px`;
+  }
+}
+
+/**
+ * Remove scroll lock styles
+ */
+function unlockScroll(): void {
+  scrollLockCount--;
+  
+  // Only restore on last unlock
+  if (scrollLockCount > 0 || !originalStyles) return;
+
+  document.documentElement.style.overflow = originalStyles.htmlOverflow;
+  document.body.style.overflow = originalStyles.bodyOverflow;
+  document.body.style.paddingRight = originalStyles.bodyPaddingRight;
+  document.documentElement.style.removeProperty('--scrollbar-width');
+
+  originalStyles = null;
+}
+
+/**
+ * Hook to prevent body scroll when a modal/overlay is open
  * 
- * Handles scroll locking for overlays, modals, sheets, and dialogs.
- * Preserves scroll position and prevents background scroll on mobile.
+ * Production-grade scroll locking for overlays, modals, sheets, and dialogs.
+ * 
+ * Features:
+ * - Uses layout effect for synchronous style application (no flash)
+ * - Accurate scrollbar width measurement
+ * - CSS custom property for fixed element compensation
+ * - Nested lock support (multiple components can call this)
+ * - Memory efficient (minimal re-renders)
  * 
  * @param isLocked - Whether to lock the scroll
- * @param reserveScrollBarGap - Whether to add padding to prevent layout shift
+ * @param reserveScrollBarGap - Whether to add padding to prevent layout shift (default: true)
  * 
  * @example
  * ```tsx
  * function Modal({ isOpen }) {
  *   usePreventScroll(isOpen);
- *   
  *   return isOpen ? <div>Modal Content</div> : null;
  * }
  * ```
@@ -24,52 +110,19 @@ export function usePreventScroll(
   isLocked: boolean,
   reserveScrollBarGap: boolean = true
 ): void {
-  const scrollPositionRef = useRef<number>(0);
+  const wasLockedRef = useRef(false);
 
-  useEffect(() => {
-    if (!isLocked) return;
-
-    // Store current scroll position
-    scrollPositionRef.current = window.scrollY;
-
-    // Get scrollbar width
-    const scrollbarWidth = reserveScrollBarGap
-      ? window.innerWidth - document.documentElement.clientWidth
-      : 0;
-
-    // Store original styles
-    const originalStyles = {
-      overflow: document.body.style.overflow,
-      position: document.body.style.position,
-      top: document.body.style.top,
-      left: document.body.style.left,
-      right: document.body.style.right,
-      paddingRight: document.body.style.paddingRight,
-    };
-
-    // Apply lock styles
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${scrollPositionRef.current}px`;
-    document.body.style.left = '0';
-    document.body.style.right = '0';
-
-    // Add padding to prevent layout shift from scrollbar disappearing
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
+  useIsomorphicLayoutEffect(() => {
+    if (isLocked && !wasLockedRef.current) {
+      lockScroll(reserveScrollBarGap);
+      wasLockedRef.current = true;
     }
 
-    // Cleanup: restore original styles and scroll position
     return () => {
-      document.body.style.overflow = originalStyles.overflow;
-      document.body.style.position = originalStyles.position;
-      document.body.style.top = originalStyles.top;
-      document.body.style.left = originalStyles.left;
-      document.body.style.right = originalStyles.right;
-      document.body.style.paddingRight = originalStyles.paddingRight;
-
-      // Restore scroll position
-      window.scrollTo(0, scrollPositionRef.current);
+      if (wasLockedRef.current) {
+        unlockScroll();
+        wasLockedRef.current = false;
+      }
     };
   }, [isLocked, reserveScrollBarGap]);
 }

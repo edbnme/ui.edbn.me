@@ -1,10 +1,13 @@
 /**
  * Dropdown Menu Component
  *
- * A comprehensive dropdown menu system with animations, keyboard navigation,
+ * A comprehensive dropdown menu system with morphing animations, keyboard navigation,
  * and full accessibility support.
  *
  * Built on Radix UI primitives with custom motion animations.
+ *
+ * Based on WAI-ARIA Menu Button pattern.
+ * @see https://www.w3.org/WAI/ARIA/apg/patterns/menubutton/
  *
  * @packageDocumentation
  */
@@ -17,149 +20,228 @@
 
 // 1. React imports
 import * as React from "react";
-import { createContext, useContext, forwardRef, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  forwardRef,
+  useMemo,
+  useCallback,
+  type ReactNode,
+} from "react";
 
 // 2. External library imports
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { motion, type Variants } from "motion/react";
+import {
+  motion,
+  MotionConfig,
+  type Transition,
+  type Variants,
+} from "motion/react";
 import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
 
 // 3. Internal imports
 import { cn } from "@/lib/utils";
-import { springPresets, easings } from "@/lib/animations";
 import { useShouldDisableAnimation } from "@/components/MotionProvider";
+import { useStableId } from "@/hooks/useStableId";
+import { usePreventScroll } from "@/hooks/usePreventScroll";
 
 // =============================================================================
 // TYPES
 // =============================================================================
 
 /**
- * Context value for DropdownMenu animation state
+ * Context value for DropdownMenu state management
  */
 interface DropdownMenuContextValue {
+  /** Whether the dropdown is open */
+  isOpen: boolean;
+  /** Unique ID for ARIA attributes */
+  uniqueId: string;
   /** Whether animations are disabled */
   disableAnimation: boolean;
+  /** Custom animation variants */
+  variants: Variants;
+  /** Spring transition for items */
+  itemTransition: Transition;
 }
 
 // =============================================================================
 // CONTEXT
 // =============================================================================
 
-const DropdownMenuContext = createContext<DropdownMenuContextValue>({
-  disableAnimation: false,
-});
+const DropdownMenuContext = createContext<DropdownMenuContextValue | null>(
+  null
+);
 
 /**
  * Hook to access DropdownMenu context
+ * @param componentName - Name of the component using this hook (for error messages)
+ * @throws Error if used outside DropdownMenu
  */
-function useDropdownMenu(): DropdownMenuContextValue {
-  return useContext(DropdownMenuContext);
+function useDropdownMenu(
+  componentName = "DropdownMenuItem"
+): DropdownMenuContextValue {
+  const context = useContext(DropdownMenuContext);
+  if (!context) {
+    throw new Error(
+      `${componentName} must be used within DropdownMenu. ` +
+        "Wrap your component tree with <DropdownMenu.Root>"
+    );
+  }
+  return context;
 }
 
 // =============================================================================
-// SPRING PRESETS FOR DROPDOWN
+// ANIMATION CONSTANTS & VARIANTS
 // =============================================================================
 
-const menuSpring = {
-  ...springPresets.smooth,
-  stiffness: 260,
+/**
+ * PREMIUM ANIMATION SYSTEM
+ * - Refined spring physics for natural, premium feel
+ * - Smooth ease curves for exits
+ * - No jank or stuttering
+ */
+
+/** Primary spring transition - natural feel */
+const menuTransition: Transition = {
+  type: "spring" as const,
+  stiffness: 380,
+  damping: 30,
+  mass: 0.9,
+};
+
+/** Item transition - quick and responsive */
+const itemTransitionConfig: Transition = {
+  type: "spring" as const,
+  stiffness: 420,
   damping: 32,
-  mass: 1.02,
+  mass: 0.8,
 };
 
-const itemSpring = {
-  ...springPresets.smooth,
-  stiffness: 360,
-  damping: 34,
-  mass: 0.9,
-};
-
-const indicatorSpring = {
-  ...springPresets.bouncy,
-  stiffness: 460,
+/** Indicator pop transition */
+const indicatorTransition: Transition = {
+  type: "spring" as const,
+  stiffness: 500,
   damping: 28,
-  mass: 0.9,
+  mass: 0.6,
 };
 
-// =============================================================================
-// ANIMATION VARIANTS
-// =============================================================================
+/** Sub-menu reveal transition */
+const subContentTransition: Transition = {
+  type: "spring" as const,
+  stiffness: 400,
+  damping: 30,
+  mass: 0.85,
+};
 
-const menuVariants: Variants = {
+/**
+ * Premium exit curve - smooth deceleration
+ */
+const exitEase = [0.32, 0, 0.67, 0] as const;
+
+/**
+ * Default variants for dropdown content
+ */
+const DEFAULT_MENU_VARIANTS: Variants = {
   initial: {
-    opacity: 0,
-    scale: 0.92,
-    y: -12,
-    filter: "blur(12px)",
-  },
-  animate: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    filter: "blur(0px)",
-    transition: {
-      ...menuSpring,
-      delayChildren: 0.08,
-      staggerChildren: 0.035,
-    },
-  },
-  exit: {
     opacity: 0,
     scale: 0.96,
     y: -6,
-    filter: "blur(6px)",
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    y: 0,
     transition: {
-      type: "tween",
-      duration: 0.18,
-      ease: easings.easeIn,
+      ...menuTransition,
+      staggerChildren: 0.025,
+      delayChildren: 0.015,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.98,
+    y: -3,
+    transition: {
+      type: "tween" as const,
+      duration: 0.15,
+      ease: exitEase,
     },
   },
 };
 
+/**
+ * Variants for sub-menu content
+ */
+const subMenuVariants: Variants = {
+  initial: {
+    opacity: 0,
+    scale: 0.97,
+    x: -6,
+  },
+  animate: {
+    opacity: 1,
+    scale: 1,
+    x: 0,
+    transition: {
+      ...subContentTransition,
+      staggerChildren: 0.02,
+      delayChildren: 0.01,
+    },
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.98,
+    x: -3,
+    transition: {
+      type: "tween" as const,
+      duration: 0.12,
+      ease: exitEase,
+    },
+  },
+};
+
+/**
+ * Variants for individual menu items
+ */
 const itemVariants: Variants = {
   initial: {
     opacity: 0,
-    y: -6,
-    scale: 0.98,
-    filter: "blur(6px)",
+    y: -3,
   },
   animate: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    filter: "blur(0px)",
   },
   exit: {
     opacity: 0,
-    y: -4,
-    scale: 0.98,
-    filter: "blur(4px)",
     transition: {
-      duration: 0.14,
-      ease: easings.easeIn,
+      type: "tween" as const,
+      duration: 0.1,
+      ease: exitEase,
     },
   },
 };
 
-const checkVariants: Variants = {
+/**
+ * Variants for checkbox/radio indicators
+ */
+const indicatorVariants: Variants = {
   initial: {
-    scale: 0.6,
+    scale: 0.5,
     opacity: 0,
-    rotate: -8,
   },
   animate: {
     scale: 1,
     opacity: 1,
-    rotate: 0,
-    transition: indicatorSpring,
   },
   exit: {
-    scale: 0.6,
+    scale: 0.5,
     opacity: 0,
-    rotate: 8,
     transition: {
-      duration: 0.16,
-      ease: easings.easeIn,
+      type: "tween" as const,
+      duration: 0.08,
+      ease: exitEase,
     },
   },
 };
@@ -171,18 +253,38 @@ const checkVariants: Variants = {
 /**
  * DropdownMenuRoot props
  */
-export interface DropdownMenuRootProps
-  extends React.ComponentProps<typeof DropdownMenuPrimitive.Root> {
-  /** Disable animations for this dropdown */
+export interface DropdownMenuRootProps {
+  /** Child components */
+  children: ReactNode;
+  /** Custom transition for animations */
+  transition?: Transition;
+  /** Controlled open state */
+  open?: boolean;
+  /** Default open state (uncontrolled) */
+  defaultOpen?: boolean;
+  /** Callback when open state changes */
+  onOpenChange?: (open: boolean) => void;
+  /** Disable all animations */
   disableAnimation?: boolean;
+  /** Custom animation variants */
+  variants?: Variants;
+  /** Whether to render as modal */
+  modal?: boolean;
+  /** Whether to prevent page scroll when open */
+  preventScroll?: boolean;
+  /** Direction for RTL support */
+  dir?: "ltr" | "rtl";
 }
 
 /**
  * DropdownMenu.Root - Container component that manages dropdown state
  *
+ * Provides context for all child components and handles
+ * controlled/uncontrolled state management.
+ *
  * @example
  * ```tsx
- * <DropdownMenu.Root>
+ * <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
  *   <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
  *   <DropdownMenu.Content>
  *     <DropdownMenu.Item>Item 1</DropdownMenu.Item>
@@ -191,24 +293,72 @@ export interface DropdownMenuRootProps
  * ```
  */
 function DropdownMenuRoot({
-  disableAnimation,
+  children,
+  transition = menuTransition,
+  open,
+  defaultOpen = false,
+  onOpenChange,
+  disableAnimation: disableAnimationProp,
+  variants = DEFAULT_MENU_VARIANTS,
   modal = false,
-  ...props
+  preventScroll = false,
+  dir,
 }: DropdownMenuRootProps) {
-  const shouldDisable = useShouldDisableAnimation(disableAnimation);
+  // Track open state for context
+  const [isOpen, setIsOpen] = React.useState(open ?? defaultOpen);
 
+  // Sync with controlled open prop
+  React.useEffect(() => {
+    if (open !== undefined) {
+      setIsOpen(open);
+    }
+  }, [open]);
+
+  // Handle open changes
+  const handleOpenChange = useCallback(
+    (newOpen: boolean) => {
+      setIsOpen(newOpen);
+      onOpenChange?.(newOpen);
+    },
+    [onOpenChange]
+  );
+
+  // Generate stable IDs
+  const uniqueId = useStableId("dropdown-menu");
+
+  // Animation preference
+  const shouldDisableAnimation =
+    useShouldDisableAnimation(disableAnimationProp);
+
+  // Prevent body scroll when open
+  usePreventScroll(preventScroll && isOpen);
+
+  // Memoized context value
   const contextValue = useMemo<DropdownMenuContextValue>(
-    () => ({ disableAnimation: shouldDisable }),
-    [shouldDisable]
+    () => ({
+      isOpen,
+      uniqueId,
+      disableAnimation: shouldDisableAnimation,
+      variants,
+      itemTransition: itemTransitionConfig,
+    }),
+    [isOpen, uniqueId, shouldDisableAnimation, variants]
   );
 
   return (
     <DropdownMenuContext.Provider value={contextValue}>
-      <DropdownMenuPrimitive.Root
-        data-slot="dropdown-menu"
-        modal={modal}
-        {...props}
-      />
+      <MotionConfig transition={transition}>
+        <DropdownMenuPrimitive.Root
+          open={open}
+          defaultOpen={defaultOpen}
+          onOpenChange={handleOpenChange}
+          modal={modal}
+          dir={dir}
+          data-slot="dropdown-menu"
+        >
+          {children}
+        </DropdownMenuPrimitive.Root>
+      </MotionConfig>
     </DropdownMenuContext.Provider>
   );
 }
@@ -222,16 +372,31 @@ DropdownMenuRoot.displayName = "DropdownMenu.Root";
 /**
  * DropdownMenuPortal props
  */
-export type DropdownMenuPortalProps = React.ComponentProps<
-  typeof DropdownMenuPrimitive.Portal
->;
+export interface DropdownMenuPortalProps {
+  /** Child content */
+  children: ReactNode;
+  /** Container element for the portal */
+  container?: HTMLElement | null;
+  /** Force mounting for animation control */
+  forceMount?: true;
+}
 
 /**
  * DropdownMenu.Portal - Renders content in a portal
  */
-function DropdownMenuPortal(props: DropdownMenuPortalProps) {
+function DropdownMenuPortal({
+  children,
+  container,
+  forceMount,
+}: DropdownMenuPortalProps) {
   return (
-    <DropdownMenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
+    <DropdownMenuPrimitive.Portal
+      container={container}
+      forceMount={forceMount}
+      data-slot="dropdown-menu-portal"
+    >
+      {children}
+    </DropdownMenuPrimitive.Portal>
   );
 }
 
@@ -244,9 +409,11 @@ DropdownMenuPortal.displayName = "DropdownMenu.Portal";
 /**
  * DropdownMenuTrigger props
  */
-export type DropdownMenuTriggerProps = React.ComponentProps<
-  typeof DropdownMenuPrimitive.Trigger
->;
+export interface DropdownMenuTriggerProps
+  extends React.ComponentProps<typeof DropdownMenuPrimitive.Trigger> {
+  /** Merge props with child element */
+  asChild?: boolean;
+}
 
 /**
  * DropdownMenu.Trigger - Button that opens the dropdown
@@ -254,14 +421,24 @@ export type DropdownMenuTriggerProps = React.ComponentProps<
 const DropdownMenuTrigger = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Trigger>,
   DropdownMenuTriggerProps
->(({ className, ...props }, ref) => (
-  <DropdownMenuPrimitive.Trigger
-    ref={ref}
-    data-slot="dropdown-menu-trigger"
-    className={cn("outline-none", className)}
-    {...props}
-  />
-));
+>(({ className, asChild = false, ...props }, ref) => {
+  const { uniqueId, isOpen } = useDropdownMenu("DropdownMenuTrigger");
+
+  return (
+    <DropdownMenuPrimitive.Trigger
+      ref={ref}
+      asChild={asChild}
+      aria-controls={`${uniqueId}-content`}
+      data-slot="dropdown-menu-trigger"
+      data-state={isOpen ? "open" : "closed"}
+      className={cn(
+        "outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        className
+      )}
+      {...props}
+    />
+  );
+});
 
 DropdownMenuTrigger.displayName = "DropdownMenu.Trigger";
 
@@ -273,9 +450,20 @@ DropdownMenuTrigger.displayName = "DropdownMenu.Trigger";
  * DropdownMenuContent props
  */
 export interface DropdownMenuContentProps
-  extends React.ComponentProps<typeof DropdownMenuPrimitive.Content> {
+  extends Omit<
+    React.ComponentProps<typeof DropdownMenuPrimitive.Content>,
+    "asChild"
+  > {
   /** Offset from the trigger */
   sideOffset?: number;
+  /** Alignment relative to trigger */
+  align?: "start" | "center" | "end";
+  /** Side to render on */
+  side?: "top" | "right" | "bottom" | "left";
+  /** Enable loop navigation */
+  loop?: boolean;
+  /** Force mounting for animation control */
+  forceMount?: true;
 }
 
 /**
@@ -284,85 +472,117 @@ export interface DropdownMenuContentProps
 const DropdownMenuContent = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
   DropdownMenuContentProps
->(({ className, sideOffset = 6, children, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+>(
+  (
+    {
+      className,
+      sideOffset = 6,
+      align = "start",
+      side = "bottom",
+      loop = true,
+      forceMount,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const { disableAnimation, uniqueId, variants } = useDropdownMenu(
+      "DropdownMenuContent"
+    );
 
-  // Base classes for dropdown content
-  const baseClasses = cn(
-    "z-50 min-w-32 overflow-hidden rounded-2xl border p-2",
-    "bg-popover text-popover-foreground",
-    "shadow-lg",
-    "max-h-[var(--radix-dropdown-menu-content-available-height)]",
-    "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
-    "overflow-y-auto",
-    className
-  );
+    // Base classes for dropdown content
+    const contentClasses = cn(
+      // Layout
+      "z-50 min-w-32 overflow-hidden rounded-2xl border p-2",
+      // Colors
+      "bg-popover text-popover-foreground",
+      // Shadow
+      "shadow-lg",
+      // Sizing
+      "max-h-[var(--radix-dropdown-menu-content-available-height)]",
+      // Transform origin for animations
+      "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
+      // Scroll
+      "overflow-y-auto",
+      className
+    );
 
-  // Non-animated version
-  if (disableAnimation) {
+    // Non-animated version
+    if (disableAnimation) {
+      return (
+        <DropdownMenuPrimitive.Portal>
+          <DropdownMenuPrimitive.Content
+            ref={ref}
+            id={`${uniqueId}-content`}
+            data-slot="dropdown-menu-content"
+            data-state="open"
+            sideOffset={sideOffset}
+            align={align}
+            side={side}
+            loop={loop}
+            forceMount={forceMount}
+            onCloseAutoFocus={(e) => e.preventDefault()}
+            className={cn(
+              contentClasses,
+              "border-border",
+              "data-[state=open]:animate-in data-[state=closed]:animate-out",
+              "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+              "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+              "data-[side=bottom]:slide-in-from-top-2",
+              "data-[side=left]:slide-in-from-right-2",
+              "data-[side=right]:slide-in-from-left-2",
+              "data-[side=top]:slide-in-from-bottom-2"
+            )}
+            {...props}
+          >
+            {children}
+          </DropdownMenuPrimitive.Content>
+        </DropdownMenuPrimitive.Portal>
+      );
+    }
+
+    // Animated version with motion
     return (
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
           ref={ref}
-          data-slot="dropdown-menu-content"
+          id={`${uniqueId}-content`}
           sideOffset={sideOffset}
+          align={align}
+          side={side}
+          loop={loop}
+          forceMount={forceMount}
           onCloseAutoFocus={(e) => e.preventDefault()}
-          className={cn(
-            baseClasses,
-            "border-border",
-            "data-[state=open]:animate-in data-[state=closed]:animate-out",
-            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-            "data-[side=bottom]:slide-in-from-top-2",
-            "data-[side=left]:slide-in-from-right-2",
-            "data-[side=right]:slide-in-from-left-2",
-            "data-[side=top]:slide-in-from-bottom-2"
-          )}
+          asChild
           {...props}
         >
-          {children}
+          <motion.div
+            data-slot="dropdown-menu-content"
+            className={cn(
+              contentClasses,
+              // Enhanced styling for animated version
+              "border-border/60",
+              "bg-popover/98",
+              "shadow-lg shadow-black/15",
+              // Subtle glassmorphism - static blur (NOT animated)
+              "supports-backdrop-filter:bg-popover/90",
+              "supports-backdrop-filter:backdrop-blur-xl",
+              // Dark mode enhancements
+              "dark:border-white/15",
+              "dark:shadow-xl dark:shadow-black/30"
+            )}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {children}
+          </motion.div>
         </DropdownMenuPrimitive.Content>
       </DropdownMenuPrimitive.Portal>
     );
   }
-
-  // Animated version
-  return (
-    <DropdownMenuPrimitive.Portal>
-      <DropdownMenuPrimitive.Content
-        ref={ref}
-        sideOffset={sideOffset}
-        onCloseAutoFocus={(e) => e.preventDefault()}
-        asChild
-        {...props}
-      >
-        <motion.div
-          layout
-          layoutRoot
-          data-slot="dropdown-menu-content"
-          className={cn(
-            baseClasses,
-            "border-border/40",
-            "bg-popover/95",
-            "shadow-[0px_20px_45px_-22px_rgba(0,0,0,0.55)]",
-            "supports-backdrop-filter:bg-popover/80",
-            "supports-backdrop-filter:backdrop-blur-2xl",
-            "supports-backdrop-filter:backdrop-saturate-200",
-            "dark:border-white/10",
-            "dark:shadow-[0px_24px_50px_-28px_rgba(0,0,0,0.9)]"
-          )}
-          variants={menuVariants}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-          style={{ willChange: "transform, opacity, filter" }}
-        >
-          {children}
-        </motion.div>
-      </DropdownMenuPrimitive.Content>
-    </DropdownMenuPrimitive.Portal>
-  );
-});
+);
 
 DropdownMenuContent.displayName = "DropdownMenu.Content";
 
@@ -380,9 +600,13 @@ export type DropdownMenuGroupProps = React.ComponentProps<
 /**
  * DropdownMenu.Group - Groups related items together
  */
-function DropdownMenuGroup(props: DropdownMenuGroupProps) {
+function DropdownMenuGroup({ className, ...props }: DropdownMenuGroupProps) {
   return (
-    <DropdownMenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
+    <DropdownMenuPrimitive.Group
+      data-slot="dropdown-menu-group"
+      className={cn(className)}
+      {...props}
+    />
   );
 }
 
@@ -410,21 +634,29 @@ const DropdownMenuItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
   DropdownMenuItemProps
 >(({ className, inset, variant = "default", children, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+  const { disableAnimation, itemTransition } =
+    useDropdownMenu("DropdownMenuItem");
 
   const itemClass = cn(
+    // Layout
     "relative flex cursor-default items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm",
+    // Focus & interaction
     "outline-none select-none",
     "transition-colors duration-75",
     "focus:bg-accent focus:text-accent-foreground",
+    // Destructive variant
     "data-[variant=destructive]:text-destructive",
     "data-[variant=destructive]:focus:bg-destructive/10",
     "dark:data-[variant=destructive]:focus:bg-destructive/20",
     "data-[variant=destructive]:focus:text-destructive",
     "data-[variant=destructive]:*:[svg]:!text-destructive",
+    // Icon styling
     "[&_svg:not([class*='text-'])]:text-muted-foreground",
+    // Disabled state
     "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    // Inset padding
     inset && "pl-8",
+    // SVG sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className
   );
@@ -454,11 +686,9 @@ const DropdownMenuItem = forwardRef<
       {...props}
     >
       <motion.div
-        layout
         className={itemClass}
         variants={itemVariants}
-        transition={itemSpring}
-        style={{ willChange: "transform, opacity, filter" }}
+        transition={itemTransition}
       >
         {children}
       </motion.div>
@@ -486,14 +716,20 @@ const DropdownMenuCheckboxItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
   DropdownMenuCheckboxItemProps
 >(({ className, children, checked, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+  const { disableAnimation, itemTransition } = useDropdownMenu(
+    "DropdownMenuCheckboxItem"
+  );
 
   const itemClass = cn(
+    // Layout
     "relative flex cursor-default items-center gap-2 rounded-lg py-2 pr-2.5 pl-9 text-sm",
+    // Focus & interaction
     "outline-none select-none",
     "transition-colors duration-75",
     "focus:bg-accent focus:text-accent-foreground",
+    // Disabled state
     "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    // SVG sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className
   );
@@ -502,15 +738,16 @@ const DropdownMenuCheckboxItem = forwardRef<
     <span className="pointer-events-none absolute left-2.5 flex size-4 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator asChild>
         {disableAnimation ? (
-          <CheckIcon className="size-4" />
+          <CheckIcon className="size-4" aria-hidden="true" />
         ) : (
           <motion.div
-            variants={checkVariants}
+            variants={indicatorVariants}
             initial="initial"
             animate="animate"
             exit="exit"
+            transition={indicatorTransition}
           >
-            <CheckIcon className="size-4" />
+            <CheckIcon className="size-4" aria-hidden="true" />
           </motion.div>
         )}
       </DropdownMenuPrimitive.ItemIndicator>
@@ -541,11 +778,9 @@ const DropdownMenuCheckboxItem = forwardRef<
       {...props}
     >
       <motion.div
-        layout
         className={itemClass}
         variants={itemVariants}
-        transition={itemSpring}
-        style={{ willChange: "transform, opacity, filter" }}
+        transition={itemTransition}
       >
         {indicatorContent}
         {children}
@@ -570,10 +805,14 @@ export type DropdownMenuRadioGroupProps = React.ComponentProps<
 /**
  * DropdownMenu.RadioGroup - Groups radio items together
  */
-function DropdownMenuRadioGroup(props: DropdownMenuRadioGroupProps) {
+function DropdownMenuRadioGroup({
+  className,
+  ...props
+}: DropdownMenuRadioGroupProps) {
   return (
     <DropdownMenuPrimitive.RadioGroup
       data-slot="dropdown-menu-radio-group"
+      className={cn(className)}
       {...props}
     />
   );
@@ -599,14 +838,20 @@ const DropdownMenuRadioItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.RadioItem>,
   DropdownMenuRadioItemProps
 >(({ className, children, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+  const { disableAnimation, itemTransition } = useDropdownMenu(
+    "DropdownMenuRadioItem"
+  );
 
   const itemClass = cn(
+    // Layout
     "relative flex cursor-default items-center gap-2 rounded-lg py-2 pr-2.5 pl-9 text-sm",
+    // Focus & interaction
     "outline-none select-none",
     "transition-colors duration-75",
     "focus:bg-accent focus:text-accent-foreground",
+    // Disabled state
     "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+    // SVG sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className
   );
@@ -615,15 +860,16 @@ const DropdownMenuRadioItem = forwardRef<
     <span className="pointer-events-none absolute left-2.5 flex size-4 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator asChild>
         {disableAnimation ? (
-          <CircleIcon className="size-2.5 fill-current" />
+          <CircleIcon className="size-2.5 fill-current" aria-hidden="true" />
         ) : (
           <motion.div
-            variants={checkVariants}
+            variants={indicatorVariants}
             initial="initial"
             animate="animate"
             exit="exit"
+            transition={indicatorTransition}
           >
-            <CircleIcon className="size-2.5 fill-current" />
+            <CircleIcon className="size-2.5 fill-current" aria-hidden="true" />
           </motion.div>
         )}
       </DropdownMenuPrimitive.ItemIndicator>
@@ -652,11 +898,9 @@ const DropdownMenuRadioItem = forwardRef<
       {...props}
     >
       <motion.div
-        layout
         className={itemClass}
         variants={itemVariants}
-        transition={itemSpring}
-        style={{ willChange: "transform, opacity, filter" }}
+        transition={itemTransition}
       >
         {indicatorContent}
         {children}
@@ -769,15 +1013,36 @@ DropdownMenuShortcut.displayName = "DropdownMenu.Shortcut";
 /**
  * DropdownMenuSub props
  */
-export type DropdownMenuSubProps = React.ComponentProps<
-  typeof DropdownMenuPrimitive.Sub
->;
+export interface DropdownMenuSubProps {
+  /** Child components */
+  children: ReactNode;
+  /** Controlled open state */
+  open?: boolean;
+  /** Default open state */
+  defaultOpen?: boolean;
+  /** Callback when open state changes */
+  onOpenChange?: (open: boolean) => void;
+}
 
 /**
  * DropdownMenu.Sub - Nested submenu container
  */
-function DropdownMenuSub(props: DropdownMenuSubProps) {
-  return <DropdownMenuPrimitive.Sub data-slot="dropdown-menu-sub" {...props} />;
+function DropdownMenuSub({
+  children,
+  open,
+  defaultOpen,
+  onOpenChange,
+}: DropdownMenuSubProps) {
+  return (
+    <DropdownMenuPrimitive.Sub
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange}
+      data-slot="dropdown-menu-sub"
+    >
+      {children}
+    </DropdownMenuPrimitive.Sub>
+  );
 }
 
 DropdownMenuSub.displayName = "DropdownMenu.Sub";
@@ -802,16 +1067,24 @@ const DropdownMenuSubTrigger = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
   DropdownMenuSubTriggerProps
 >(({ className, inset, children, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+  const { disableAnimation, itemTransition } = useDropdownMenu(
+    "DropdownMenuSubTrigger"
+  );
 
   const triggerClass = cn(
+    // Layout
     "flex cursor-default items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm",
+    // Focus & interaction
     "outline-none select-none",
     "transition-colors duration-75",
     "focus:bg-accent focus:text-accent-foreground",
+    // Open state
     "data-[state=open]:bg-accent data-[state=open]:text-accent-foreground",
+    // Icon styling
     "[&_svg:not([class*='text-'])]:text-muted-foreground",
+    // Inset padding
     inset && "pl-8",
+    // SVG sizing
     "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
     className
   );
@@ -826,7 +1099,7 @@ const DropdownMenuSubTrigger = forwardRef<
         {...props}
       >
         {children}
-        <ChevronRightIcon className="ml-auto size-4" />
+        <ChevronRightIcon className="ml-auto size-4" aria-hidden="true" />
       </DropdownMenuPrimitive.SubTrigger>
     );
   }
@@ -840,14 +1113,12 @@ const DropdownMenuSubTrigger = forwardRef<
       {...props}
     >
       <motion.div
-        layout
         className={triggerClass}
         variants={itemVariants}
-        transition={itemSpring}
-        style={{ willChange: "transform, opacity, filter" }}
+        transition={itemTransition}
       >
         {children}
-        <ChevronRightIcon className="ml-auto size-4" />
+        <ChevronRightIcon className="ml-auto size-4" aria-hidden="true" />
       </motion.div>
     </DropdownMenuPrimitive.SubTrigger>
   );
@@ -862,9 +1133,13 @@ DropdownMenuSubTrigger.displayName = "DropdownMenu.SubTrigger";
 /**
  * DropdownMenuSubContent props
  */
-export type DropdownMenuSubContentProps = React.ComponentProps<
-  typeof DropdownMenuPrimitive.SubContent
->;
+export interface DropdownMenuSubContentProps
+  extends React.ComponentProps<typeof DropdownMenuPrimitive.SubContent> {
+  /** Offset from the trigger */
+  sideOffset?: number;
+  /** Alignment relative to trigger */
+  alignOffset?: number;
+}
 
 /**
  * DropdownMenu.SubContent - Content panel for a submenu
@@ -872,12 +1147,17 @@ export type DropdownMenuSubContentProps = React.ComponentProps<
 const DropdownMenuSubContent = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
   DropdownMenuSubContentProps
->(({ className, ...props }, ref) => {
-  const { disableAnimation } = useDropdownMenu();
+>(({ className, sideOffset = 2, alignOffset = -4, ...props }, ref) => {
+  const { disableAnimation } = useDropdownMenu("DropdownMenuSubContent");
 
-  const baseClasses = cn(
+  const contentClasses = cn(
+    // Layout
     "z-50 min-w-32 overflow-hidden rounded-2xl border p-2",
-    "bg-popover text-popover-foreground shadow-lg",
+    // Colors
+    "bg-popover text-popover-foreground",
+    // Shadow
+    "shadow-lg",
+    // Transform origin
     "origin-[var(--radix-dropdown-menu-content-transform-origin)]",
     className
   );
@@ -887,8 +1167,10 @@ const DropdownMenuSubContent = forwardRef<
       <DropdownMenuPrimitive.SubContent
         ref={ref}
         data-slot="dropdown-menu-sub-content"
+        sideOffset={sideOffset}
+        alignOffset={alignOffset}
         className={cn(
-          baseClasses,
+          contentClasses,
           "border-border",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
@@ -904,26 +1186,32 @@ const DropdownMenuSubContent = forwardRef<
   }
 
   return (
-    <DropdownMenuPrimitive.SubContent ref={ref} asChild {...props}>
+    <DropdownMenuPrimitive.SubContent
+      ref={ref}
+      sideOffset={sideOffset}
+      alignOffset={alignOffset}
+      asChild
+      {...props}
+    >
       <motion.div
-        layout
         data-slot="dropdown-menu-sub-content"
         className={cn(
-          baseClasses,
-          "border-border/40",
-          "bg-popover/95",
-          "shadow-[0px_18px_42px_-24px_rgba(0,0,0,0.55)]",
-          "supports-backdrop-filter:bg-popover/80",
-          "supports-backdrop-filter:backdrop-blur-2xl",
-          "supports-backdrop-filter:backdrop-saturate-200",
-          "dark:border-white/10",
-          "dark:shadow-[0px_22px_46px_-28px_rgba(0,0,0,0.9)]"
+          contentClasses,
+          // Enhanced styling
+          "border-border/60",
+          "bg-popover/98",
+          "shadow-lg shadow-black/15",
+          // Subtle glassmorphism - static blur
+          "supports-backdrop-filter:bg-popover/90",
+          "supports-backdrop-filter:backdrop-blur-xl",
+          // Dark mode
+          "dark:border-white/15",
+          "dark:shadow-xl dark:shadow-black/30"
         )}
-        variants={menuVariants}
+        variants={subMenuVariants}
         initial="initial"
         animate="animate"
         exit="exit"
-        style={{ willChange: "transform, opacity, filter" }}
       />
     </DropdownMenuPrimitive.SubContent>
   );
