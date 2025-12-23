@@ -74,7 +74,7 @@ Add your component to the root `registry.json`:
       "type": "registry:ui",
       "title": "My Component",
       "description": "A brief description of your component.",
-      "dependencies": ["motion", "lucide-react"],
+      "dependencies": ["motion", "@phosphor-icons/react"],
       "registryDependencies": ["utils", "motion-provider"],
       "files": [
         {
@@ -140,7 +140,7 @@ The registry uses `inlineDependencies` in `scripts/update-registry.mjs`:
 
 ```javascript
 'button': {
-  dependencies: ['motion', 'lucide-react'],      // npm packages
+  dependencies: ['motion', '@phosphor-icons/react'],      // npm packages
   registryDependencies: ['utils'],                // official shadcn components
   inlineDependencies: ['motion-provider', 'icons'], // auto-bundled custom components
   files: [...]
@@ -196,7 +196,7 @@ For components with multiple files (like motion-provider):
 External packages installed via npm:
 
 ```json
-"dependencies": ["motion", "@radix-ui/react-dialog", "lucide-react"]
+"dependencies": ["motion", "@radix-ui/react-dialog", "@phosphor-icons/react"]
 ```
 
 ### Registry Dependencies
@@ -229,7 +229,7 @@ import { InstallationTabs } from "@/components/docs";
 // In your docs page:
 <InstallationTabs
   componentName="my-component"
-  dependencies={["motion", "lucide-react"]}
+  dependencies={["motion", "@phosphor-icons/react"]}
   registryDependencies={["motion-provider", "icons"]}
   importExample={`import { MyComponent } from "@/components/ui/my-component"`}
 />;

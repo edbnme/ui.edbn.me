@@ -29,7 +29,7 @@ import {
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
 import { motion, type HTMLMotionProps } from "motion/react";
-import type { LucideIcon } from "lucide-react";
+import type { Icon } from "@phosphor-icons/react";
 
 // 3. Internal imports
 import { cn } from "@/lib/utils";
@@ -228,13 +228,13 @@ export interface ButtonProps
    * Icon to display at the start (left side).
    * Hidden during loading/success states.
    */
-  iconStart?: LucideIcon;
+  iconStart?: Icon;
 
   /**
    * Icon to display at the end (right side).
    * Hidden during loading/success states.
    */
-  iconEnd?: LucideIcon;
+  iconEnd?: Icon;
 
   /**
    * Disable all animations for this button.
@@ -495,7 +495,7 @@ export interface IconButtonProps
   /**
    * The icon to display (required)
    */
-  icon: LucideIcon;
+  icon: Icon;
 
   /**
    * Accessible label (required for icon-only buttons)

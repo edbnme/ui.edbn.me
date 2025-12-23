@@ -12,7 +12,7 @@
         "@radix-ui/react-slot",
         "class-variance-authority",
         "motion",
-        "lucide-react",
+        "@phosphor-icons/react",
         "tw-animate-css"
       ],
       "registryDependencies": [
@@ -32,7 +32,7 @@
       "description": "Animated modal dialog with morphing animations, focus trap, and controlled/uncontrolled state.",
       "dependencies": [
         "motion",
-        "lucide-react",
+        "@phosphor-icons/react",
         "tw-animate-css"
       ],
       "registryDependencies": [
@@ -73,7 +73,7 @@
       "dependencies": [
         "@radix-ui/react-dropdown-menu",
         "motion",
-        "lucide-react",
+        "@phosphor-icons/react",
         "tw-animate-css"
       ],
       "registryDependencies": [
@@ -153,7 +153,7 @@
       "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
       "dependencies": [
         "motion",
-        "lucide-react",
+        "@phosphor-icons/react",
         "tw-animate-css"
       ],
       "registryDependencies": [

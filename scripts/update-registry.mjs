@@ -12,7 +12,7 @@ const components = {
     type: 'registry:ui',
     title: 'Button',
     description: 'Animated button component with press feedback, loading states, and icon support.',
-    dependencies: ['@radix-ui/react-slot', 'class-variance-authority', 'motion', 'lucide-react', 'tw-animate-css'],
+    dependencies: ['@radix-ui/react-slot', 'class-variance-authority', 'motion', '@phosphor-icons/react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider', 'icons'],
     files: [
@@ -23,7 +23,7 @@ const components = {
     type: 'registry:ui',
     title: 'Alert Dialog',
     description: 'Animated modal dialog with morphing animations, focus trap, and controlled/uncontrolled state.',
-    dependencies: ['motion', 'lucide-react', 'tw-animate-css'],
+    dependencies: ['motion', '@phosphor-icons/react', 'tw-animate-css'],
     registryDependencies: ['utils', 'button'],
     inlineDependencies: ['motion-provider', 'animations', 'tokens', 'use-stable-id', 'use-controllable-state'],
     files: [
@@ -53,7 +53,7 @@ const components = {
     type: 'registry:ui',
     title: 'Dropdown Menu',
     description: 'Animated dropdown menu with smooth spring animations and staggered item reveals.',
-    dependencies: ['@radix-ui/react-dropdown-menu', 'motion', 'lucide-react', 'tw-animate-css'],
+    dependencies: ['@radix-ui/react-dropdown-menu', 'motion', '@phosphor-icons/react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider', 'animations', 'tokens'],
     files: [
@@ -104,7 +104,7 @@ const components = {
     type: 'registry:lib',
     title: 'Animated Icons',
     description: 'Animated icon components including loading spinners, morphing icons, and close buttons.',
-    dependencies: ['motion', 'lucide-react', 'tw-animate-css'],
+    dependencies: ['motion', '@phosphor-icons/react', 'tw-animate-css'],
     registryDependencies: ['utils'],
     inlineDependencies: ['motion-provider'],
     files: [

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Dropdown Menu Component
  *
  * A comprehensive dropdown menu system with morphing animations, keyboard navigation,
@@ -37,7 +37,7 @@ import {
   type Transition,
   type Variants,
 } from "motion/react";
-import { CheckIcon, ChevronRightIcon, CircleIcon } from "lucide-react";
+import { CheckIcon, CaretRightIcon, CircleIcon } from "@phosphor-icons/react";
 
 // 3. Internal imports
 import { cn } from "@/lib/utils";
@@ -85,7 +85,7 @@ function useDropdownMenu(
   if (!context) {
     throw new Error(
       `${componentName} must be used within DropdownMenu. ` +
-        "Wrap your component tree with <DropdownMenu.Root>"
+        "Wrap your component tree with <DropdownMenu>"
     );
   }
   return context;
@@ -251,9 +251,9 @@ const indicatorVariants: Variants = {
 // =============================================================================
 
 /**
- * DropdownMenuRoot props
+ * DropdownMenu props
  */
-export interface DropdownMenuRootProps {
+export interface DropdownMenuProps {
   /** Child components */
   children: ReactNode;
   /** Custom transition for animations */
@@ -277,22 +277,22 @@ export interface DropdownMenuRootProps {
 }
 
 /**
- * DropdownMenu.Root - Container component that manages dropdown state
+ * DropdownMenu - Container component that manages dropdown state
  *
  * Provides context for all child components and handles
  * controlled/uncontrolled state management.
  *
  * @example
  * ```tsx
- * <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
- *   <DropdownMenu.Trigger>Open</DropdownMenu.Trigger>
- *   <DropdownMenu.Content>
- *     <DropdownMenu.Item>Item 1</DropdownMenu.Item>
- *   </DropdownMenu.Content>
- * </DropdownMenu.Root>
+ * <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+ *   <DropdownMenuTrigger>Open</DropdownMenuTrigger>
+ *   <DropdownMenuContent>
+ *     <DropdownMenuItem>Item 1</DropdownMenuItem>
+ *   </DropdownMenuContent>
+ * </DropdownMenu>
  * ```
  */
-function DropdownMenuRoot({
+function DropdownMenu({
   children,
   transition = menuTransition,
   open,
@@ -303,7 +303,7 @@ function DropdownMenuRoot({
   modal = false,
   preventScroll = false,
   dir,
-}: DropdownMenuRootProps) {
+}: DropdownMenuProps) {
   // Track open state for context
   const [isOpen, setIsOpen] = React.useState(open ?? defaultOpen);
 
@@ -363,7 +363,7 @@ function DropdownMenuRoot({
   );
 }
 
-DropdownMenuRoot.displayName = "DropdownMenu.Root";
+DropdownMenu.displayName = "DropdownMenu";
 
 // =============================================================================
 // DROPDOWN MENU PORTAL
@@ -382,7 +382,7 @@ export interface DropdownMenuPortalProps {
 }
 
 /**
- * DropdownMenu.Portal - Renders content in a portal
+ * DropdownMenuPortal - Renders content in a portal
  */
 function DropdownMenuPortal({
   children,
@@ -400,7 +400,7 @@ function DropdownMenuPortal({
   );
 }
 
-DropdownMenuPortal.displayName = "DropdownMenu.Portal";
+DropdownMenuPortal.displayName = "DropdownMenuPortal";
 
 // =============================================================================
 // DROPDOWN MENU TRIGGER
@@ -416,7 +416,7 @@ export interface DropdownMenuTriggerProps
 }
 
 /**
- * DropdownMenu.Trigger - Button that opens the dropdown
+ * DropdownMenuTrigger - Button that opens the dropdown
  */
 const DropdownMenuTrigger = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Trigger>,
@@ -440,7 +440,7 @@ const DropdownMenuTrigger = forwardRef<
   );
 });
 
-DropdownMenuTrigger.displayName = "DropdownMenu.Trigger";
+DropdownMenuTrigger.displayName = "DropdownMenuTrigger";
 
 // =============================================================================
 // DROPDOWN MENU CONTENT
@@ -467,7 +467,7 @@ export interface DropdownMenuContentProps
 }
 
 /**
- * DropdownMenu.Content - Main dropdown panel with animations
+ * DropdownMenuContent - Main dropdown panel with animations
  */
 const DropdownMenuContent = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Content>,
@@ -584,7 +584,7 @@ const DropdownMenuContent = forwardRef<
   }
 );
 
-DropdownMenuContent.displayName = "DropdownMenu.Content";
+DropdownMenuContent.displayName = "DropdownMenuContent";
 
 // =============================================================================
 // DROPDOWN MENU GROUP
@@ -598,7 +598,7 @@ export type DropdownMenuGroupProps = React.ComponentProps<
 >;
 
 /**
- * DropdownMenu.Group - Groups related items together
+ * DropdownMenuGroup - Groups related items together
  */
 function DropdownMenuGroup({ className, ...props }: DropdownMenuGroupProps) {
   return (
@@ -610,7 +610,7 @@ function DropdownMenuGroup({ className, ...props }: DropdownMenuGroupProps) {
   );
 }
 
-DropdownMenuGroup.displayName = "DropdownMenu.Group";
+DropdownMenuGroup.displayName = "DropdownMenuGroup";
 
 // =============================================================================
 // DROPDOWN MENU ITEM
@@ -628,7 +628,7 @@ export interface DropdownMenuItemProps
 }
 
 /**
- * DropdownMenu.Item - Interactive menu item
+ * DropdownMenuItem - Interactive menu item
  */
 const DropdownMenuItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
@@ -696,7 +696,7 @@ const DropdownMenuItem = forwardRef<
   );
 });
 
-DropdownMenuItem.displayName = "DropdownMenu.Item";
+DropdownMenuItem.displayName = "DropdownMenuItem";
 
 // =============================================================================
 // DROPDOWN MENU CHECKBOX ITEM
@@ -710,7 +710,7 @@ export type DropdownMenuCheckboxItemProps = React.ComponentProps<
 >;
 
 /**
- * DropdownMenu.CheckboxItem - Toggleable checkbox item
+ * DropdownMenuCheckboxItem - Toggleable checkbox item
  */
 const DropdownMenuCheckboxItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.CheckboxItem>,
@@ -789,7 +789,7 @@ const DropdownMenuCheckboxItem = forwardRef<
   );
 });
 
-DropdownMenuCheckboxItem.displayName = "DropdownMenu.CheckboxItem";
+DropdownMenuCheckboxItem.displayName = "DropdownMenuCheckboxItem";
 
 // =============================================================================
 // DROPDOWN MENU RADIO GROUP
@@ -803,7 +803,7 @@ export type DropdownMenuRadioGroupProps = React.ComponentProps<
 >;
 
 /**
- * DropdownMenu.RadioGroup - Groups radio items together
+ * DropdownMenuRadioGroup - Groups radio items together
  */
 function DropdownMenuRadioGroup({
   className,
@@ -818,7 +818,7 @@ function DropdownMenuRadioGroup({
   );
 }
 
-DropdownMenuRadioGroup.displayName = "DropdownMenu.RadioGroup";
+DropdownMenuRadioGroup.displayName = "DropdownMenuRadioGroup";
 
 // =============================================================================
 // DROPDOWN MENU RADIO ITEM
@@ -832,7 +832,7 @@ export type DropdownMenuRadioItemProps = React.ComponentProps<
 >;
 
 /**
- * DropdownMenu.RadioItem - Selectable radio item
+ * DropdownMenuRadioItem - Selectable radio item
  */
 const DropdownMenuRadioItem = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.RadioItem>,
@@ -860,7 +860,11 @@ const DropdownMenuRadioItem = forwardRef<
     <span className="pointer-events-none absolute left-2.5 flex size-4 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator asChild>
         {disableAnimation ? (
-          <CircleIcon className="size-2.5 fill-current" aria-hidden="true" />
+          <CircleIcon
+            className="size-2.5 fill-current"
+            aria-hidden="true"
+            weight="fill"
+          />
         ) : (
           <motion.div
             variants={indicatorVariants}
@@ -869,7 +873,11 @@ const DropdownMenuRadioItem = forwardRef<
             exit="exit"
             transition={indicatorTransition}
           >
-            <CircleIcon className="size-2.5 fill-current" aria-hidden="true" />
+            <CircleIcon
+              className="size-2.5 fill-current"
+              aria-hidden="true"
+              weight="fill"
+            />
           </motion.div>
         )}
       </DropdownMenuPrimitive.ItemIndicator>
@@ -909,7 +917,7 @@ const DropdownMenuRadioItem = forwardRef<
   );
 });
 
-DropdownMenuRadioItem.displayName = "DropdownMenu.RadioItem";
+DropdownMenuRadioItem.displayName = "DropdownMenuRadioItem";
 
 // =============================================================================
 // DROPDOWN MENU LABEL
@@ -925,7 +933,7 @@ export interface DropdownMenuLabelProps
 }
 
 /**
- * DropdownMenu.Label - Non-interactive label for a group
+ * DropdownMenuLabel - Non-interactive label for a group
  */
 const DropdownMenuLabel = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Label>,
@@ -945,7 +953,7 @@ const DropdownMenuLabel = forwardRef<
   />
 ));
 
-DropdownMenuLabel.displayName = "DropdownMenu.Label";
+DropdownMenuLabel.displayName = "DropdownMenuLabel";
 
 // =============================================================================
 // DROPDOWN MENU SEPARATOR
@@ -959,7 +967,7 @@ export type DropdownMenuSeparatorProps = React.ComponentProps<
 >;
 
 /**
- * DropdownMenu.Separator - Visual divider between items
+ * DropdownMenuSeparator - Visual divider between items
  */
 const DropdownMenuSeparator = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.Separator>,
@@ -973,7 +981,7 @@ const DropdownMenuSeparator = forwardRef<
   />
 ));
 
-DropdownMenuSeparator.displayName = "DropdownMenu.Separator";
+DropdownMenuSeparator.displayName = "DropdownMenuSeparator";
 
 // =============================================================================
 // DROPDOWN MENU SHORTCUT
@@ -985,7 +993,7 @@ DropdownMenuSeparator.displayName = "DropdownMenu.Separator";
 export type DropdownMenuShortcutProps = React.ComponentProps<"kbd">;
 
 /**
- * DropdownMenu.Shortcut - Keyboard shortcut indicator
+ * DropdownMenuShortcut - Keyboard shortcut indicator
  */
 function DropdownMenuShortcut({
   className,
@@ -1004,7 +1012,7 @@ function DropdownMenuShortcut({
   );
 }
 
-DropdownMenuShortcut.displayName = "DropdownMenu.Shortcut";
+DropdownMenuShortcut.displayName = "DropdownMenuShortcut";
 
 // =============================================================================
 // DROPDOWN MENU SUB
@@ -1025,7 +1033,7 @@ export interface DropdownMenuSubProps {
 }
 
 /**
- * DropdownMenu.Sub - Nested submenu container
+ * DropdownMenuSub - Nested submenu container
  */
 function DropdownMenuSub({
   children,
@@ -1045,7 +1053,7 @@ function DropdownMenuSub({
   );
 }
 
-DropdownMenuSub.displayName = "DropdownMenu.Sub";
+DropdownMenuSub.displayName = "DropdownMenuSub";
 
 // =============================================================================
 // DROPDOWN MENU SUB TRIGGER
@@ -1061,7 +1069,7 @@ export interface DropdownMenuSubTriggerProps
 }
 
 /**
- * DropdownMenu.SubTrigger - Opens a nested submenu
+ * DropdownMenuSubTrigger - Opens a nested submenu
  */
 const DropdownMenuSubTrigger = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.SubTrigger>,
@@ -1099,7 +1107,7 @@ const DropdownMenuSubTrigger = forwardRef<
         {...props}
       >
         {children}
-        <ChevronRightIcon className="ml-auto size-4" aria-hidden="true" />
+        <CaretRightIcon className="ml-auto size-4" aria-hidden="true" />
       </DropdownMenuPrimitive.SubTrigger>
     );
   }
@@ -1118,13 +1126,13 @@ const DropdownMenuSubTrigger = forwardRef<
         transition={itemTransition}
       >
         {children}
-        <ChevronRightIcon className="ml-auto size-4" aria-hidden="true" />
+        <CaretRightIcon className="ml-auto size-4" aria-hidden="true" />
       </motion.div>
     </DropdownMenuPrimitive.SubTrigger>
   );
 });
 
-DropdownMenuSubTrigger.displayName = "DropdownMenu.SubTrigger";
+DropdownMenuSubTrigger.displayName = "DropdownMenuSubTrigger";
 
 // =============================================================================
 // DROPDOWN MENU SUB CONTENT
@@ -1142,7 +1150,7 @@ export interface DropdownMenuSubContentProps
 }
 
 /**
- * DropdownMenu.SubContent - Content panel for a submenu
+ * DropdownMenuSubContent - Content panel for a submenu
  */
 const DropdownMenuSubContent = forwardRef<
   React.ComponentRef<typeof DropdownMenuPrimitive.SubContent>,
@@ -1217,20 +1225,16 @@ const DropdownMenuSubContent = forwardRef<
   );
 });
 
-DropdownMenuSubContent.displayName = "DropdownMenu.SubContent";
+DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
 
 // =============================================================================
-// COMPOUND COMPONENT EXPORT
+// EXPORTS
 // =============================================================================
 
 /**
- * DropdownMenu compound component with sub-components attached.
+ * DropdownMenu components following shadcn/ui export pattern.
  *
- * Can be used as either:
- * 1. Direct component: `<DropdownMenu>` (equivalent to `<DropdownMenu.Root>`)
- * 2. Namespace pattern: `<DropdownMenu.Root>`, `<DropdownMenu.Trigger>`, etc.
- *
- * @example Direct usage (recommended for tests and simple cases)
+ * @example
  * ```tsx
  * <DropdownMenu>
  *   <DropdownMenuTrigger asChild>
@@ -1244,50 +1248,9 @@ DropdownMenuSubContent.displayName = "DropdownMenu.SubContent";
  *   </DropdownMenuContent>
  * </DropdownMenu>
  * ```
- *
- * @example Namespace pattern (recommended for documentation)
- * ```tsx
- * <DropdownMenu.Root>
- *   <DropdownMenu.Trigger asChild>
- *     <Button>Open</Button>
- *   </DropdownMenu.Trigger>
- *   <DropdownMenu.Content>
- *     <DropdownMenu.Item>Edit</DropdownMenu.Item>
- *     <DropdownMenu.Item>Duplicate</DropdownMenu.Item>
- *     <DropdownMenu.Separator />
- *     <DropdownMenu.Item variant="destructive">Delete</DropdownMenu.Item>
- *   </DropdownMenu.Content>
- * </DropdownMenu.Root>
- * ```
  */
-const DropdownMenu = Object.assign(DropdownMenuRoot, {
-  Root: DropdownMenuRoot,
-  Portal: DropdownMenuPortal,
-  Trigger: DropdownMenuTrigger,
-  Content: DropdownMenuContent,
-  Group: DropdownMenuGroup,
-  Item: DropdownMenuItem,
-  CheckboxItem: DropdownMenuCheckboxItem,
-  RadioGroup: DropdownMenuRadioGroup,
-  RadioItem: DropdownMenuRadioItem,
-  Label: DropdownMenuLabel,
-  Separator: DropdownMenuSeparator,
-  Shortcut: DropdownMenuShortcut,
-  Sub: DropdownMenuSub,
-  SubTrigger: DropdownMenuSubTrigger,
-  SubContent: DropdownMenuSubContent,
-});
-
-// =============================================================================
-// EXPORTS
-// =============================================================================
-
-// Primary export: Compound component with namespace
-export { DropdownMenu };
-
-// Named exports for direct imports
 export {
-  DropdownMenuRoot,
+  DropdownMenu,
   DropdownMenuPortal,
   DropdownMenuTrigger,
   DropdownMenuContent,

@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   // Performance: Enable experimental features for production
   experimental: {
     // Optimize package imports for faster builds
-    optimizePackageImports: ["lucide-react", "motion"],
+    optimizePackageImports: ["@phosphor-icons/react", "motion"],
   },
 
   // Image optimization

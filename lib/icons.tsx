@@ -8,20 +8,20 @@ import {
   type TargetAndTransition,
   type VariantLabels,
 } from "motion/react";
-import type { LucideIcon } from "lucide-react";
+import type { Icon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { springPresets } from "@/lib/motion";
 
 // =============================================================================
 // ANIMATED ICON WRAPPER
-// Wraps Lucide icons with Motion for smooth transitions
+// Wraps Phosphor icons with Motion for smooth transitions
 // =============================================================================
 
 type AnimationTarget = boolean | TargetAndTransition | VariantLabels;
 
 export type AnimatedIconProps = {
-  /** The Lucide icon component to render */
-  icon: LucideIcon;
+  /** The Phosphor icon component to render */
+  icon: Icon;
   /** Optional className for styling */
   className?: string;
   /** Size of the icon (inherits from parent if not specified) */
@@ -113,9 +113,9 @@ export function AnimatedIcon({
 
 export type IconMorphProps = {
   /** First icon (shown when isActive is false) */
-  iconA: LucideIcon;
+  iconA: Icon;
   /** Second icon (shown when isActive is true) */
-  iconB: LucideIcon;
+  iconB: Icon;
   /** Current state */
   isActive: boolean;
   /** Unique ID for layout animations */

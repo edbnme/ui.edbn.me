@@ -37,7 +37,7 @@ import {
   type Transition,
 } from "motion/react";
 import { createPortal } from "react-dom";
-import { XIcon } from "lucide-react";
+import { XIcon } from "@phosphor-icons/react";
 
 // 3. Internal imports
 import { cn } from "@/lib/utils";

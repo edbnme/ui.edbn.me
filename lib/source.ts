@@ -29,17 +29,17 @@ export const pageTree: PageTree = {
     {
       type: "page",
       name: "Welcome",
-      url: "/docs/get-started/welcome",
+      url: "/docs",
     },
     {
       type: "page",
       name: "Changelog",
-      url: "/docs/get-started/changelog",
+      url: "/docs/changelog",
     },
     {
       type: "page",
       name: "License",
-      url: "/docs/get-started/license",
+      url: "/docs/license",
     },
     {
       type: "page",
