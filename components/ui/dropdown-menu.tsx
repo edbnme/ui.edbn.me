@@ -41,9 +41,9 @@ import { CheckIcon, CaretRightIcon, CircleIcon } from "@phosphor-icons/react";
 
 // 3. Internal imports
 import { cn } from "@/lib/utils";
-import { useShouldDisableAnimation } from "@/components/MotionProvider";
-import { useStableId } from "@/hooks/useStableId";
-import { usePreventScroll } from "@/hooks/usePreventScroll";
+import { useShouldDisableAnimation } from "@/components/motion-provider";
+import { useStableId } from "@/hooks/use-stable-id";
+import { usePreventScroll } from "@/hooks/use-prevent-scroll";
 
 // =============================================================================
 // TYPES
@@ -84,7 +84,7 @@ function useDropdownMenu(
   const context = useContext(DropdownMenuContext);
   if (!context) {
     throw new Error(
-      `${componentName} must be used within DropdownMenu. ` +
+      `${componentName} must be used within <DropdownMenu>. ` +
         "Wrap your component tree with <DropdownMenu>"
     );
   }
@@ -493,7 +493,7 @@ const DropdownMenuContent = forwardRef<
     // Base classes for dropdown content
     const contentClasses = cn(
       // Layout
-      "z-50 min-w-32 overflow-hidden rounded-2xl border p-2",
+      "z-[100] min-w-32 overflow-hidden rounded-2xl border p-2",
       // Colors
       "bg-popover text-popover-foreground",
       // Shadow
@@ -1160,7 +1160,7 @@ const DropdownMenuSubContent = forwardRef<
 
   const contentClasses = cn(
     // Layout
-    "z-50 min-w-32 overflow-hidden rounded-2xl border p-2",
+    "z-[100] min-w-32 overflow-hidden rounded-2xl border p-2",
     // Colors
     "bg-popover text-popover-foreground",
     // Shadow

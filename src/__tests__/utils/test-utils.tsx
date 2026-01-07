@@ -93,7 +93,7 @@ function TestWrapper({ children }: { children: ReactNode }) {
  */
 export function customRender(
   ui: ReactElement,
-  options?: CustomRenderOptions
+  options?: CustomRenderOptions,
 ): CustomRenderResult {
   return {
     user: userEvent.setup(),

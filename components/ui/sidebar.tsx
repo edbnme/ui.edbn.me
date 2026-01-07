@@ -47,7 +47,7 @@ const SidebarContext = React.createContext<SidebarContextProps | null>(null);
 function useSidebar() {
   const context = React.useContext(SidebarContext);
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.");
+    throw new Error("useSidebar must be used within <SidebarProvider>.");
   }
 
   return context;
@@ -697,6 +697,34 @@ function SidebarMenuSubButton({
     />
   );
 }
+
+// =============================================================================
+// DISPLAY NAMES
+// =============================================================================
+
+Sidebar.displayName = "Sidebar";
+SidebarContent.displayName = "SidebarContent";
+SidebarFooter.displayName = "SidebarFooter";
+SidebarGroup.displayName = "SidebarGroup";
+SidebarGroupAction.displayName = "SidebarGroupAction";
+SidebarGroupContent.displayName = "SidebarGroupContent";
+SidebarGroupLabel.displayName = "SidebarGroupLabel";
+SidebarHeader.displayName = "SidebarHeader";
+SidebarInput.displayName = "SidebarInput";
+SidebarInset.displayName = "SidebarInset";
+SidebarMenu.displayName = "SidebarMenu";
+SidebarMenuAction.displayName = "SidebarMenuAction";
+SidebarMenuBadge.displayName = "SidebarMenuBadge";
+SidebarMenuButton.displayName = "SidebarMenuButton";
+SidebarMenuItem.displayName = "SidebarMenuItem";
+SidebarMenuSkeleton.displayName = "SidebarMenuSkeleton";
+SidebarMenuSub.displayName = "SidebarMenuSub";
+SidebarMenuSubButton.displayName = "SidebarMenuSubButton";
+SidebarMenuSubItem.displayName = "SidebarMenuSubItem";
+SidebarProvider.displayName = "SidebarProvider";
+SidebarRail.displayName = "SidebarRail";
+SidebarSeparator.displayName = "SidebarSeparator";
+SidebarTrigger.displayName = "SidebarTrigger";
 
 export {
   Sidebar,

@@ -39,10 +39,10 @@ import {
 // 3. Internal imports
 import { cn } from "@/lib/utils";
 import { createMorphingPopoverVariants } from "@/lib/animations";
-import { useShouldDisableAnimation } from "@/components/MotionProvider";
-import { useStableId } from "@/hooks/useStableId";
-import { useControllableBoolean } from "@/hooks/useControllableState";
-import useClickOutside from "@/hooks/useClickOutside";
+import { useShouldDisableAnimation } from "@/components/motion-provider";
+import { useStableId } from "@/hooks/use-stable-id";
+import { useControllableBoolean } from "@/hooks/use-controllable-state";
+import useClickOutside from "@/hooks/use-click-outside";
 
 // =============================================================================
 // TYPES
@@ -88,7 +88,7 @@ const PopoverContext = createContext<PopoverContextValue | null>(null);
 function usePopover(componentName = "PopoverTrigger"): PopoverContextValue {
   const context = useContext(PopoverContext);
   if (!context) {
-    throw new Error(`${componentName} must be used within Popover`);
+    throw new Error(`${componentName} must be used within <Popover>`);
   }
   return context;
 }
@@ -140,17 +140,17 @@ export interface PopoverRootProps {
 }
 
 /**
- * Popover.Root - Container component that manages popover state
+ * PopoverRoot - Container component that manages popover state
  *
  * Provides context for all child components and handles
  * controlled/uncontrolled state management.
  *
  * @example
  * ```tsx
- * <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
- *   <Popover.Trigger>Open</Popover.Trigger>
- *   <Popover.Content>...</Popover.Content>
- * </Popover.Root>
+ * <Popover open={isOpen} onOpenChange={setIsOpen}>
+ *   <PopoverTrigger>Open</PopoverTrigger>
+ *   <PopoverContent>...</PopoverContent>
+ * </Popover>
  * ```
  */
 function PopoverRoot({
@@ -187,7 +187,7 @@ function PopoverRoot({
   const closePopover = useCallback(() => setIsOpen(false), [setIsOpen]);
   const togglePopover = useCallback(
     () => setIsOpen((prev) => !prev),
-    [setIsOpen]
+    [setIsOpen],
   );
 
   // Memoized context value
@@ -213,7 +213,7 @@ function PopoverRoot({
       uniqueId,
       shouldDisableAnimation,
       variants,
-    ]
+    ],
   );
 
   return (
@@ -232,7 +232,7 @@ function PopoverRoot({
   );
 }
 
-PopoverRoot.displayName = "Popover.Root";
+PopoverRoot.displayName = "PopoverRoot";
 
 // =============================================================================
 // POPOVER TRIGGER
@@ -253,7 +253,7 @@ export interface PopoverTriggerProps {
 }
 
 /**
- * Popover.Trigger - Button that opens the popover
+ * PopoverTrigger - Button that opens the popover
  *
  * Uses layoutId for smooth morphing animation into the popover.
  * The trigger hides when popover opens to create seamless morph effect.
@@ -278,7 +278,7 @@ function PopoverTrigger({
         open();
       }
     },
-    [open]
+    [open],
   );
 
   // Common ARIA and data attributes
@@ -359,7 +359,7 @@ function PopoverTrigger({
   );
 }
 
-PopoverTrigger.displayName = "Popover.Trigger";
+PopoverTrigger.displayName = "PopoverTrigger";
 
 // =============================================================================
 // POPOVER LABEL
@@ -378,7 +378,7 @@ export interface PopoverLabelProps {
 }
 
 /**
- * Popover.Label - Morphing label that transitions with the popover
+ * PopoverLabel - Morphing label that transitions with the popover
  */
 function PopoverLabel({ children, className, style }: PopoverLabelProps) {
   const { uniqueId, disableAnimation } = usePopover("PopoverLabel");
@@ -407,7 +407,7 @@ function PopoverLabel({ children, className, style }: PopoverLabelProps) {
   );
 }
 
-PopoverLabel.displayName = "Popover.Label";
+PopoverLabel.displayName = "PopoverLabel";
 
 // =============================================================================
 // POPOVER CONTENT
@@ -430,7 +430,7 @@ export interface PopoverContentProps {
 }
 
 /**
- * Popover.Content - Main popover panel
+ * PopoverContent - Main popover panel
  *
  * Contains the popover content with morphing animation.
  * Handles focus trapping and keyboard interactions.
@@ -521,14 +521,14 @@ function PopoverContent({
 
   // Content styles
   const contentClasses = cn(
-    "absolute z-50",
+    "absolute z-[100]",
     "min-w-[300px] max-w-[95vw]",
     "overflow-hidden rounded-2xl",
     "border border-border",
     "bg-background",
     "shadow-2xl shadow-black/20 dark:shadow-black/50",
     "outline-none focus:outline-none",
-    className
+    className,
   );
 
   // Animated version with morphing
@@ -582,7 +582,7 @@ function PopoverContent({
   );
 }
 
-PopoverContent.displayName = "Popover.Content";
+PopoverContent.displayName = "PopoverContent";
 
 // =============================================================================
 // POPOVER HEADER
@@ -601,7 +601,7 @@ export interface PopoverHeaderProps {
 }
 
 /**
- * Popover.Header - Header section for title and description
+ * PopoverHeader - Header section for title and description
  */
 function PopoverHeader({ children, className, style }: PopoverHeaderProps) {
   const { disableAnimation } = usePopover("PopoverHeader");
@@ -611,7 +611,7 @@ function PopoverHeader({ children, className, style }: PopoverHeaderProps) {
     "border-b border-border",
     "px-5 py-4",
     "bg-background",
-    className
+    className,
   );
 
   if (!disableAnimation) {
@@ -647,7 +647,7 @@ function PopoverHeader({ children, className, style }: PopoverHeaderProps) {
   );
 }
 
-PopoverHeader.displayName = "Popover.Header";
+PopoverHeader.displayName = "PopoverHeader";
 
 // =============================================================================
 // POPOVER TITLE
@@ -666,7 +666,7 @@ export interface PopoverTitleProps {
 }
 
 /**
- * Popover.Title - Title with morphing animation from trigger label
+ * PopoverTitle - Title with morphing animation from trigger label
  */
 function PopoverTitle({ children, className, style }: PopoverTitleProps) {
   const { uniqueId, disableAnimation } = usePopover("PopoverTitle");
@@ -675,7 +675,7 @@ function PopoverTitle({ children, className, style }: PopoverTitleProps) {
     "flex items-center gap-2",
     "text-sm font-semibold leading-none",
     "text-foreground",
-    className
+    className,
   );
 
   if (!disableAnimation) {
@@ -704,7 +704,7 @@ function PopoverTitle({ children, className, style }: PopoverTitleProps) {
   );
 }
 
-PopoverTitle.displayName = "Popover.Title";
+PopoverTitle.displayName = "PopoverTitle";
 
 // =============================================================================
 // POPOVER DESCRIPTION
@@ -723,7 +723,7 @@ export interface PopoverDescriptionProps {
 }
 
 /**
- * Popover.Description - Description text with fade animation
+ * PopoverDescription - Description text with fade animation
  */
 function PopoverDescription({
   children,
@@ -764,7 +764,7 @@ function PopoverDescription({
   );
 }
 
-PopoverDescription.displayName = "Popover.Description";
+PopoverDescription.displayName = "PopoverDescription";
 
 // =============================================================================
 // POPOVER BODY
@@ -783,7 +783,7 @@ export interface PopoverBodyProps {
 }
 
 /**
- * Popover.Body - Main content area with fade animation
+ * PopoverBody - Main content area with fade animation
  */
 function PopoverBody({ children, className, style }: PopoverBodyProps) {
   const { disableAnimation } = usePopover("PopoverBody");
@@ -828,7 +828,7 @@ function PopoverBody({ children, className, style }: PopoverBodyProps) {
   );
 }
 
-PopoverBody.displayName = "Popover.Body";
+PopoverBody.displayName = "PopoverBody";
 
 // =============================================================================
 // POPOVER FOOTER
@@ -847,7 +847,7 @@ export interface PopoverFooterProps {
 }
 
 /**
- * Popover.Footer - Footer section for action buttons
+ * PopoverFooter - Footer section for action buttons
  */
 function PopoverFooter({ children, className, style }: PopoverFooterProps) {
   const { disableAnimation } = usePopover("PopoverFooter");
@@ -857,7 +857,7 @@ function PopoverFooter({ children, className, style }: PopoverFooterProps) {
     "border-t border-border",
     "px-5 py-3.5",
     "bg-background",
-    className
+    className,
   );
 
   if (!disableAnimation) {
@@ -898,7 +898,7 @@ function PopoverFooter({ children, className, style }: PopoverFooterProps) {
   );
 }
 
-PopoverFooter.displayName = "Popover.Footer";
+PopoverFooter.displayName = "PopoverFooter";
 
 // =============================================================================
 // POPOVER CLOSE
@@ -919,7 +919,7 @@ export interface PopoverCloseProps {
 }
 
 /**
- * Popover.Close - Button that closes the popover
+ * PopoverClose - Button that closes the popover
  */
 function PopoverClose({
   children = "Close",
@@ -955,7 +955,7 @@ function PopoverClose({
         "hover:bg-secondary/80",
         "transition-colors duration-150",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        className
+        className,
       )}
       style={style}
       onClick={handleClick}
@@ -966,67 +966,59 @@ function PopoverClose({
   );
 }
 
-PopoverClose.displayName = "Popover.Close";
+PopoverClose.displayName = "PopoverClose";
 
 // =============================================================================
 // COMPOUND COMPONENT EXPORT
 // =============================================================================
 
 /**
- * Popover compound component with sub-components attached.
+ * Popover - A styled, reusable UI component for displaying rich content.
  *
- * Can be used as either:
- * 1. Direct component: `<Popover>` (equivalent to `<Popover.Root>`)
- * 2. Namespace pattern: `<Popover.Root>`, `<Popover.Trigger>`, etc.
+ * Features morphing animations, focus management, and full accessibility.
+ * Use with named exports for a clean API.
  *
- * @example Direct usage (recommended for tests and simple cases)
+ * @example
  * ```tsx
+ * import {
+ *   Popover,
+ *   PopoverTrigger,
+ *   PopoverContent,
+ *   PopoverHeader,
+ *   PopoverTitle,
+ *   PopoverDescription,
+ *   PopoverBody,
+ *   PopoverFooter,
+ *   PopoverClose,
+ * } from "@edbn/ui/popover";
+ *
  * <Popover>
  *   <PopoverTrigger asChild>
  *     <Button>Open</Button>
  *   </PopoverTrigger>
  *   <PopoverContent>
- *     <PopoverTitle>Settings</PopoverTitle>
- *     <PopoverDescription>Configure options</PopoverDescription>
+ *     <PopoverHeader>
+ *       <PopoverTitle>Settings</PopoverTitle>
+ *       <PopoverDescription>Configure options</PopoverDescription>
+ *     </PopoverHeader>
+ *     <PopoverBody>
+ *       Your content here
+ *     </PopoverBody>
+ *     <PopoverFooter>
+ *       <PopoverClose>Close</PopoverClose>
+ *     </PopoverFooter>
  *   </PopoverContent>
  * </Popover>
  * ```
- *
- * @example Namespace pattern (recommended for documentation)
- * ```tsx
- * <Popover.Root>
- *   <Popover.Trigger asChild>
- *     <Button>Open</Button>
- *   </Popover.Trigger>
- *   <Popover.Content>
- *     <Popover.Title>Settings</Popover.Title>
- *     <Popover.Description>Configure options</Popover.Description>
- *   </Popover.Content>
- * </Popover.Root>
- * ```
  */
-const Popover = Object.assign(PopoverRoot, {
-  Root: PopoverRoot,
-  Trigger: PopoverTrigger,
-  Label: PopoverLabel,
-  Content: PopoverContent,
-  Header: PopoverHeader,
-  Title: PopoverTitle,
-  Description: PopoverDescription,
-  Body: PopoverBody,
-  Footer: PopoverFooter,
-  Close: PopoverClose,
-});
+const Popover = PopoverRoot;
 
 // =============================================================================
 // EXPORTS
 // =============================================================================
 
-// Primary export: Compound component with namespace
-export { Popover };
-
-// Named exports for direct imports
 export {
+  Popover,
   PopoverRoot,
   PopoverTrigger,
   PopoverLabel,

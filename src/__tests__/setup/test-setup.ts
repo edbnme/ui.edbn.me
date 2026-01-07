@@ -129,11 +129,13 @@ Object.defineProperty(window, "scrollTo", {
  * - Performance-optimized updates
  */
 let rafId = 0;
-global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback): number => {
-  rafId += 1;
-  setTimeout(() => callback(performance.now()), 0);
-  return rafId;
-});
+global.requestAnimationFrame = vi.fn(
+  (callback: FrameRequestCallback): number => {
+    rafId += 1;
+    setTimeout(() => callback(performance.now()), 0);
+    return rafId;
+  },
+);
 
 global.cancelAnimationFrame = vi.fn((): void => {
   // No-op in tests
@@ -222,7 +224,7 @@ const originalConsoleError = console.error;
 beforeAll(() => {
   console.warn = (...args: unknown[]) => {
     const message = args[0]?.toString() || "";
-    
+
     // Skip known warnings that don't affect test validity
     const suppressedPatterns = [
       "Missing `Description`",
@@ -231,27 +233,27 @@ beforeAll(() => {
       "value-not-animatable",
       "React does not recognize",
     ];
-    
-    if (suppressedPatterns.some(pattern => message.includes(pattern))) {
+
+    if (suppressedPatterns.some((pattern) => message.includes(pattern))) {
       return;
     }
-    
+
     originalConsoleWarn(...args);
   };
 
   console.error = (...args: unknown[]) => {
     const message = args[0]?.toString() || "";
-    
+
     // Skip known errors that don't affect test validity
     const suppressedPatterns = [
       "Warning: React does not recognize",
       "Warning: Invalid DOM property",
     ];
-    
-    if (suppressedPatterns.some(pattern => message.includes(pattern))) {
+
+    if (suppressedPatterns.some((pattern) => message.includes(pattern))) {
       return;
     }
-    
+
     originalConsoleError(...args);
   };
 });

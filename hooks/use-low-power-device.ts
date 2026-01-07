@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { useSyncExternalStore, useCallback } from 'react';
+import { useSyncExternalStore, useCallback } from "react";
 
 /**
  * Hook to detect if the device is in a low-power state
- * 
+ *
  * Checks Battery API and hardware concurrency to determine if
  * animations should be reduced for performance reasons.
- * 
+ *
  * @returns Object with power state information
- * 
+ *
  * @example
  * ```tsx
  * function AnimatedComponent() {
  *   const { isLowPower, shouldReduceAnimations } = useLowPowerDevice();
- *   
+ *
  *   return (
  *     <motion.div
  *       animate={{ scale: shouldReduceAnimations ? 1 : 1.1 }}
@@ -57,7 +57,7 @@ async function getBatteryManager(): Promise<BatteryManager | null> {
   if (batteryManager) return batteryManager;
   if (batteryPromise) return batteryPromise;
 
-  if (typeof navigator === 'undefined') return null;
+  if (typeof navigator === "undefined") return null;
 
   const nav = navigator as NavigatorWithBattery;
   if (!nav.getBattery) return null;
@@ -68,7 +68,7 @@ async function getBatteryManager(): Promise<BatteryManager | null> {
 }
 
 // Initialize battery manager on module load
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
   getBatteryManager();
 }
 
@@ -86,7 +86,7 @@ let cachedSnapshot: LowPowerState = serverSnapshot;
 
 // Function to get current snapshot (called outside of React)
 function getCurrentSnapshot(): LowPowerState {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return serverSnapshot;
   }
 
@@ -120,7 +120,8 @@ function getCurrentSnapshot(): LowPowerState {
   // Compare with cached snapshot
   if (
     cachedSnapshot.isLowPower === newSnapshot.isLowPower &&
-    cachedSnapshot.shouldReduceAnimations === newSnapshot.shouldReduceAnimations &&
+    cachedSnapshot.shouldReduceAnimations ===
+      newSnapshot.shouldReduceAnimations &&
     cachedSnapshot.batteryLevel === newSnapshot.batteryLevel &&
     cachedSnapshot.isCharging === newSnapshot.isCharging &&
     cachedSnapshot.hardwareConcurrency === newSnapshot.hardwareConcurrency
@@ -134,25 +135,25 @@ function getCurrentSnapshot(): LowPowerState {
 
 export function useLowPowerDevice(): LowPowerState {
   const getSnapshot = () => getCurrentSnapshot();
-  
+
   const getServerSnapshot = () => serverSnapshot;
 
   const subscribe = useCallback((callback: () => void) => {
-    if (typeof window === 'undefined') return () => {};
+    if (typeof window === "undefined") return () => {};
 
     // Subscribe to battery events if available
     getBatteryManager().then((battery) => {
       if (battery) {
-        battery.addEventListener('chargingchange', callback);
-        battery.addEventListener('levelchange', callback);
+        battery.addEventListener("chargingchange", callback);
+        battery.addEventListener("levelchange", callback);
       }
     });
 
     // Clean up
     return () => {
       if (batteryManager) {
-        batteryManager.removeEventListener('chargingchange', callback);
-        batteryManager.removeEventListener('levelchange', callback);
+        batteryManager.removeEventListener("chargingchange", callback);
+        batteryManager.removeEventListener("levelchange", callback);
       }
     };
   }, []);

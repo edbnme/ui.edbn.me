@@ -361,7 +361,7 @@ export function CloseButton({
         "inline-flex items-center justify-center rounded-full",
         "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground",
         "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        className
+        className,
       )}
       style={{
         width: dimensions.button,
@@ -466,7 +466,7 @@ export function DragHandle({ className }: DragHandleProps) {
       className={cn(
         "mx-auto w-10 h-1.5 rounded-full bg-muted-foreground/30",
         "shrink-0",
-        className
+        className,
       )}
       aria-hidden="true"
     />

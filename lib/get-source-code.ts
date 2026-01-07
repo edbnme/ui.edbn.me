@@ -62,13 +62,13 @@ function getComponentsDir(): string {
  * ```
  */
 export async function getComponentSource(
-  componentName: string
+  componentName: string,
 ): Promise<string> {
   const fileName = COMPONENT_FILES[componentName];
 
   if (!fileName) {
     throw new Error(
-      `Unknown component: ${componentName}. Available: ${Object.keys(COMPONENT_FILES).join(", ")}`
+      `Unknown component: ${componentName}. Available: ${Object.keys(COMPONENT_FILES).join(", ")}`,
     );
   }
 

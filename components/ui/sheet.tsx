@@ -6,7 +6,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
 import { DragHandle, CloseButton } from "@/lib/icons";
-import { useShouldDisableAnimation } from "@/components/MotionProvider";
+import { useShouldDisableAnimation } from "@/components/motion-provider";
 
 // =============================================================================
 // SHEET VARIANTS (CVA)
@@ -15,7 +15,7 @@ import { useShouldDisableAnimation } from "@/components/MotionProvider";
 
 const sheetVariants = cva(
   [
-    "fixed z-50 flex flex-col",
+    "fixed z-[101] flex flex-col",
     "bg-background/98 backdrop-blur-2xl backdrop-saturate-150",
     "shadow-2xl shadow-black/30",
     // Dark mode
@@ -35,7 +35,7 @@ const sheetVariants = cva(
     defaultVariants: {
       side: "right",
     },
-  }
+  },
 );
 
 // =============================================================================
@@ -142,12 +142,12 @@ const SheetOverlay = React.forwardRef<
       ref={ref}
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50",
+        "fixed inset-0 z-[100]",
         "bg-black/50 backdrop-blur-xl backdrop-saturate-150",
         disableAnimation
           ? "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
           : "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 duration-300",
-        className
+        className,
       )}
       {...props}
     />
@@ -182,7 +182,7 @@ const SheetContent = React.forwardRef<
       showCloseButton = true,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Ensure side is never null/undefined
     const side = sideProp ?? "right";
@@ -205,7 +205,7 @@ const SheetContent = React.forwardRef<
             side === "bottom" &&
               "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
             "duration-300 ease-out",
-            className
+            className,
           )}
           {...props}
         >
@@ -230,7 +230,7 @@ const SheetContent = React.forwardRef<
         </SheetPrimitive.Content>
       </SheetPortal>
     );
-  }
+  },
 );
 
 SheetContent.displayName = SheetPrimitive.Content.displayName;
@@ -247,7 +247,7 @@ function SheetHeader({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         "flex flex-col gap-1 px-5 pt-5 pb-4",
         "border-b border-border/40",
-        className
+        className,
       )}
       {...props}
     />
@@ -267,7 +267,7 @@ function SheetFooter({ className, ...props }: React.ComponentProps<"div">) {
         "mt-auto flex flex-col gap-2 px-5 py-4",
         "border-t border-border/40",
         "bg-muted/30",
-        className
+        className,
       )}
       {...props}
     />
@@ -289,7 +289,7 @@ const SheetTitle = React.forwardRef<
     className={cn(
       "text-base font-semibold tracking-tight leading-none",
       "text-foreground",
-      className
+      className,
     )}
     {...props}
   />
@@ -311,7 +311,7 @@ const SheetDescription = React.forwardRef<
     data-slot="sheet-description"
     className={cn(
       "text-[13px] text-muted-foreground leading-relaxed",
-      className
+      className,
     )}
     {...props}
   />
@@ -332,7 +332,7 @@ function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
         "flex-1 overflow-y-auto px-5 py-4",
         // Modern overscroll behavior
         "overscroll-contain",
-        className
+        className,
       )}
       {...props}
     />

@@ -27,12 +27,12 @@ Open an issue first if you're planning to add a new component or make significan
 Example structure:
 
 ```tsx
-"use client"
+"use client";
 
-import * as React from "react"
-import { motion } from "motion/react"
-import { cn } from "@/lib/utils"
-import { springPresets } from "@/lib/motion"
+import * as React from "react";
+import { motion } from "motion/react";
+import { cn } from "@/lib/utils";
+import { springPresets } from "@/lib/motion";
 
 const MyComponent = React.forwardRef<HTMLDivElement, Props>(
   ({ className, ...props }, ref) => {
@@ -43,12 +43,12 @@ const MyComponent = React.forwardRef<HTMLDivElement, Props>(
         transition={springPresets.snappy}
         {...props}
       />
-    )
-  }
-)
-MyComponent.displayName = "MyComponent"
+    );
+  },
+);
+MyComponent.displayName = "MyComponent";
 
-export { MyComponent }
+export { MyComponent };
 ```
 
 ## Registry
@@ -63,15 +63,15 @@ After adding or modifying a component:
 Write tests for new components:
 
 ```tsx
-import { render, screen } from "@testing-library/react"
-import { MyComponent } from "@/components/ui/my-component"
+import { render, screen } from "@testing-library/react";
+import { MyComponent } from "@/components/ui/my-component";
 
 describe("MyComponent", () => {
   it("renders", () => {
-    render(<MyComponent>Hello</MyComponent>)
-    expect(screen.getByText("Hello")).toBeInTheDocument()
-  })
-})
+    render(<MyComponent>Hello</MyComponent>);
+    expect(screen.getByText("Hello")).toBeInTheDocument();
+  });
+});
 ```
 
 Run tests before committing:

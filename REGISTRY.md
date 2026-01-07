@@ -50,12 +50,12 @@ Convert all imports to registry-compatible paths:
 // ❌ Original (components/ui/button.tsx)
 import { cn } from "@/lib/utils";
 import { springPresets } from "@/lib/motion";
-import { useShouldDisableAnimation } from "@/components/MotionProvider";
+import { useShouldDisableAnimation } from "@/components/motion-provider";
 
 // ✅ Registry version (registry/new-york/button/button.tsx)
 import { cn } from "@/lib/utils"; // utils is a built-in shadcn dependency
 import { springPresets } from "@/lib/motion"; // from motion-provider registry dep
-import { useShouldDisableAnimation } from "@/components/MotionProvider"; // from motion-provider
+import { useShouldDisableAnimation } from "@/components/motion-provider"; // from motion-provider
 ```
 
 ### Step 3: Add to registry.json

@@ -1,6 +1,13 @@
-'use client';
+"use client";
 
-import { useState, useCallback, useRef, useEffect, type Dispatch, type SetStateAction } from 'react';
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 
 /**
  * Configuration for useControllableState hook
@@ -22,13 +29,13 @@ export interface UseControllableStateParams<T> {
 
 /**
  * Hook for creating state that can be either controlled or uncontrolled.
- * 
+ *
  * This pattern allows components to work in both controlled and uncontrolled modes,
  * giving consumers flexibility in how they use the component.
- * 
+ *
  * @param params - Configuration parameters
  * @returns A tuple of [value, setValue] similar to useState
- * 
+ *
  * @example
  * ```tsx
  * // Uncontrolled usage
@@ -37,17 +44,17 @@ export interface UseControllableStateParams<T> {
  *     defaultValue: defaultOpen ?? false,
  *     onChange: onOpenChange,
  *   });
- *   
+ *
  *   return <div>{isOpen ? 'Open' : 'Closed'}</div>;
  * }
- * 
+ *
  * // Controlled usage
  * function MyComponent({ open, onOpenChange }) {
  *   const [isOpen, setIsOpen] = useControllableState({
  *     value: open,
  *     onChange: onOpenChange,
  *   });
- *   
+ *
  *   return <div>{isOpen ? 'Open' : 'Closed'}</div>;
  * }
  * ```
@@ -60,57 +67,60 @@ export function useControllableState<T>({
   // Determine if component is controlled
   const isControlled = controlledValue !== undefined;
   const isControlledRef = useRef(isControlled);
-  
+
   // Warn about switching between controlled and uncontrolled
   useEffect(() => {
-    if (process.env.NODE_ENV !== 'production') {
+    if (process.env.NODE_ENV !== "production") {
       if (isControlledRef.current !== isControlled) {
         console.warn(
-          'A component is changing from ' +
-            (isControlledRef.current ? 'controlled' : 'uncontrolled') +
-            ' to ' +
-            (isControlled ? 'controlled' : 'uncontrolled') +
-            '. This is likely caused by the value changing from a defined to undefined, ' +
-            'which should not happen. Decide between using a controlled or uncontrolled ' +
-            'component for the lifetime of the component.'
+          "A component is changing from " +
+            (isControlledRef.current ? "controlled" : "uncontrolled") +
+            " to " +
+            (isControlled ? "controlled" : "uncontrolled") +
+            ". This is likely caused by the value changing from a defined to undefined, " +
+            "which should not happen. Decide between using a controlled or uncontrolled " +
+            "component for the lifetime of the component.",
         );
       }
     }
   }, [isControlled]);
-  
+
   // Internal state for uncontrolled mode
   const [uncontrolledValue, setUncontrolledValue] = useState<T>(() => {
-    if (typeof defaultValue === 'function') {
+    if (typeof defaultValue === "function") {
       return (defaultValue as () => T)();
     }
     return defaultValue as T;
   });
-  
+
   // The value to use (controlled or uncontrolled)
   const value = isControlled ? controlledValue : uncontrolledValue;
-  
+
   // Stable reference to onChange callback
   const onChangeRef = useRef(onChange);
   useEffect(() => {
     onChangeRef.current = onChange;
   }, [onChange]);
-  
+
   // Setter function that handles both modes
-  const setValue = useCallback((nextValue: SetStateAction<T>) => {
-    const resolvedValue = 
-      typeof nextValue === 'function' 
-        ? (nextValue as (prev: T) => T)(value) 
-        : nextValue;
-    
-    // In uncontrolled mode, update internal state
-    if (!isControlled) {
-      setUncontrolledValue(resolvedValue);
-    }
-    
-    // Always call onChange if provided
-    onChangeRef.current?.(resolvedValue);
-  }, [isControlled, value]);
-  
+  const setValue = useCallback(
+    (nextValue: SetStateAction<T>) => {
+      const resolvedValue =
+        typeof nextValue === "function"
+          ? (nextValue as (prev: T) => T)(value)
+          : nextValue;
+
+      // In uncontrolled mode, update internal state
+      if (!isControlled) {
+        setUncontrolledValue(resolvedValue);
+      }
+
+      // Always call onChange if provided
+      onChangeRef.current?.(resolvedValue);
+    },
+    [isControlled, value],
+  );
+
   return [value, setValue];
 }
 
@@ -125,10 +135,10 @@ export interface UseControllableBooleanParams {
 
 /**
  * Specialized hook for boolean controllable state
- * 
- * @param params - Configuration parameters  
+ *
+ * @param params - Configuration parameters
  * @returns Tuple with value, setValue, and convenience methods
- * 
+ *
  * @example
  * ```tsx
  * const [isOpen, setIsOpen, { open, close, toggle }] = useControllableBoolean({
@@ -144,18 +154,18 @@ export function useControllableBoolean({
 }: UseControllableBooleanParams): [
   boolean,
   Dispatch<SetStateAction<boolean>>,
-  { open: () => void; close: () => void; toggle: () => void }
+  { open: () => void; close: () => void; toggle: () => void },
 ] {
   const [isOpen, setIsOpen] = useControllableState({
     value,
     defaultValue,
     onChange,
   });
-  
+
   const open = useCallback(() => setIsOpen(true), [setIsOpen]);
   const close = useCallback(() => setIsOpen(false), [setIsOpen]);
   const toggle = useCallback(() => setIsOpen((prev) => !prev), [setIsOpen]);
-  
+
   return [isOpen, setIsOpen, { open, close, toggle }];
 }
 

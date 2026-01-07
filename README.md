@@ -1,4 +1,7 @@
-# ui.edbn.me
+# edbn/ui
+
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/kewonit/ui.edbn.me/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 
 A collection of React components with smooth animations and careful attention to detail. Built with Next.js 16, Tailwind CSS v4, and Motion.
 
@@ -7,7 +10,7 @@ These aren't just demos, they're meant to be copied into your project and custom
 ## What's here
 
 - React components in `components/ui/`
-- Hooks for common patterns
+- Hooks for common patterns (kebab-case naming: `use-stable-id.ts`)
 - Motion presets and utilities
 - Registry for installing via shadcn CLI
 

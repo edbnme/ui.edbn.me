@@ -58,7 +58,7 @@ export const pageTree: PageTree = {
     {
       type: "page",
       name: "Alert Dialog",
-      url: "/docs/components/dialogs",
+      url: "/docs/components/alert-dialog",
     },
     {
       type: "page",

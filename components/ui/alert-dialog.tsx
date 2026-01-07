@@ -42,9 +42,9 @@ import { XIcon } from "@phosphor-icons/react";
 // 3. Internal imports
 import { cn } from "@/lib/utils";
 import { springPresets } from "@/lib/animations";
-import { useShouldDisableAnimation } from "@/components/MotionProvider";
-import { useStableId } from "@/hooks/useStableId";
-import { useControllableBoolean } from "@/hooks/useControllableState";
+import { useShouldDisableAnimation } from "@/components/motion-provider";
+import { useStableId } from "@/hooks/use-stable-id";
+import { useControllableBoolean } from "@/hooks/use-controllable-state";
 
 // =============================================================================
 // TYPES
@@ -84,8 +84,8 @@ function useAlertDialog(): AlertDialogContextValue {
   const context = useContext(AlertDialogContext);
   if (!context) {
     throw new Error(
-      "useAlertDialog must be used within an AlertDialog. " +
-        "Wrap your component tree with <AlertDialog.Root>"
+      "useAlertDialog must be used within <AlertDialog>. " +
+        "Wrap your component tree with <AlertDialog>"
     );
   }
   return context;
@@ -160,19 +160,17 @@ export interface AlertDialogRootProps {
 }
 
 /**
- * AlertDialog.Root - Container component that manages dialog state
+ * AlertDialog - Container component that manages dialog state
  *
  * Provides context for all child components and handles
  * controlled/uncontrolled state management.
  *
  * @example
  * ```tsx
- * <AlertDialog.Root open={isOpen} onOpenChange={setIsOpen}>
- *   <AlertDialog.Trigger>Open</AlertDialog.Trigger>
- *   <AlertDialog.Container>
- *     <AlertDialog.Content>...</AlertDialog.Content>
- *   </AlertDialog.Container>
- * </AlertDialog.Root>
+ * <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+ *   <AlertDialogTrigger>Open</AlertDialogTrigger>
+ *   <AlertDialogContent>...</AlertDialogContent>
+ * </AlertDialog>
  * ```
  */
 function AlertDialogRoot({
@@ -222,7 +220,7 @@ function AlertDialogRoot({
   );
 }
 
-AlertDialogRoot.displayName = "AlertDialog.Root";
+AlertDialogRoot.displayName = "AlertDialogRoot";
 
 // =============================================================================
 // ALERT DIALOG TRIGGER
@@ -243,7 +241,7 @@ export interface AlertDialogTriggerProps {
 }
 
 /**
- * AlertDialog.Trigger - Button that opens the dialog
+ * AlertDialogTrigger - Button that opens the dialog
  *
  * Uses layoutId for smooth morphing animation into the dialog.
  * The trigger hides when dialog opens to prevent "button behind dialog" effect.
@@ -298,14 +296,24 @@ function AlertDialogTrigger({
             pointerEvents: isOpen ? "none" : "auto",
           }}
         >
-          {/* Morphing background layer */}
+          {/* Morphing background layer - transparent, explicitly no border */}
           <motion.div
             layoutId={`dialog-${uniqueId}`}
-            className="absolute inset-0 -z-10 rounded-lg bg-transparent"
+            className="absolute inset-0 -z-10 rounded-lg border-0"
             initial={false}
-            animate={{ opacity: isOpen ? 0 : 1 }}
+            animate={{
+              opacity: isOpen ? 0 : 1,
+              borderWidth: 0,
+            }}
             transition={dialogSprings.morph}
-            style={{ borderRadius: "inherit" }}
+            style={{
+              borderRadius: "inherit",
+              backgroundColor: "transparent",
+              borderWidth: 0,
+              borderStyle: "none",
+              boxShadow: "none",
+              outline: "none",
+            }}
           />
           {/* Child with fade */}
           <motion.div
@@ -344,13 +352,23 @@ function AlertDialogTrigger({
         tabIndex={isOpen ? -1 : 0}
         {...commonProps}
       >
-        {/* Morphing background layer */}
+        {/* Morphing background layer - transparent, explicitly no border */}
         <motion.div
           layoutId={`dialog-${uniqueId}`}
-          className="absolute inset-0 -z-10 rounded-lg bg-inherit border-inherit shadow-inherit"
+          className="absolute inset-0 -z-10 rounded-lg border-0"
           initial={false}
-          animate={{ opacity: isOpen ? 0 : 1 }}
+          animate={{
+            opacity: isOpen ? 0 : 1,
+            borderWidth: 0,
+          }}
           transition={dialogSprings.morph}
+          style={{
+            backgroundColor: "transparent",
+            borderWidth: 0,
+            borderStyle: "none",
+            boxShadow: "none",
+            outline: "none",
+          }}
         />
         {/* Static content with fade */}
         <motion.span
@@ -379,7 +397,7 @@ function AlertDialogTrigger({
   );
 }
 
-AlertDialogTrigger.displayName = "AlertDialog.Trigger";
+AlertDialogTrigger.displayName = "AlertDialogTrigger";
 
 // =============================================================================
 // ALERT DIALOG CONTAINER (PORTAL)
@@ -389,7 +407,7 @@ AlertDialogTrigger.displayName = "AlertDialog.Trigger";
  * AlertDialogContainer props
  */
 export interface AlertDialogContainerProps {
-  /** Child content (typically AlertDialog.Content) */
+  /** Child content (typically AlertDialogContent) */
   children: ReactNode;
   /** Additional CSS classes */
   className?: string;
@@ -398,7 +416,7 @@ export interface AlertDialogContainerProps {
 }
 
 /**
- * AlertDialog.Container - Portal wrapper with backdrop
+ * AlertDialogContainer - Portal wrapper with backdrop
  *
  * Renders content in a portal with backdrop and center positioning.
  * Handles AnimatePresence for enter/exit animations.
@@ -413,17 +431,17 @@ function AlertDialogContainer({ children }: AlertDialogContainerProps) {
     <AnimatePresence initial={false} mode="wait">
       {isOpen && (
         <MotionConfig transition={dialogSprings.morph}>
-          {/* Backdrop with blur */}
+          {/* Backdrop with blur - z-[100] to be above all UI elements */}
           {disableAnimation ? (
             <div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-backdrop"
             />
           ) : (
             <motion.div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-50 bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -432,8 +450,8 @@ function AlertDialogContainer({ children }: AlertDialogContainerProps) {
             />
           )}
 
-          {/* Centered container */}
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Centered container - z-[101] above backdrop, pointer-events-none to allow clicks through */}
+          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
             {children}
           </div>
         </MotionConfig>
@@ -443,7 +461,7 @@ function AlertDialogContainer({ children }: AlertDialogContainerProps) {
   );
 }
 
-AlertDialogContainer.displayName = "AlertDialog.Container";
+AlertDialogContainer.displayName = "AlertDialogContainer";
 
 // =============================================================================
 // ALERT DIALOG CONTENT
@@ -463,17 +481,29 @@ export interface AlertDialogContentProps {
   showCloseButton?: boolean;
   /** Callback when close button clicked */
   onCloseButtonClick?: () => void;
-  /** Prevent Escape key from closing (default: true for alert dialogs) */
+  /** Prevent Escape key from closing (default: false for Radix compatibility) */
   preventEscapeClose?: boolean;
   /** Prevent clicking outside from closing (default: true) */
   preventOutsideClose?: boolean;
+  /**
+   * When true, only renders the content panel (legacy mode for use with explicit Container).
+   * When false (default), includes portal and overlay automatically (shadcn mode).
+   */
+  standalone?: boolean;
 }
 
 /**
- * AlertDialog.Content - Main dialog panel
+ * AlertDialogContent - Main dialog panel with integrated portal and overlay
  *
  * Contains the dialog content with morphing animation.
  * Handles focus trapping and keyboard interactions.
+ *
+ * In shadcn mode (default), this component includes:
+ * - Portal rendering to document.body
+ * - Animated backdrop overlay
+ * - Centered positioning
+ *
+ * In standalone mode, it only renders the content panel.
  */
 function AlertDialogContent({
   children,
@@ -481,8 +511,9 @@ function AlertDialogContent({
   style,
   showCloseButton = false,
   onCloseButtonClick,
-  preventEscapeClose = true, // Alert dialogs shouldn't close on ESC by default
+  preventEscapeClose = false, // Changed to false for Radix/shadcn compatibility
   preventOutsideClose = true,
+  standalone = false,
 }: AlertDialogContentProps) {
   const {
     setIsOpen,
@@ -492,6 +523,8 @@ function AlertDialogContent({
     contentRef,
     disableAnimation,
   } = useAlertDialog();
+
+  const mounted = useIsMounted();
 
   // Focus trap refs
   const firstFocusableRef = useRef<HTMLElement | null>(null);
@@ -594,6 +627,7 @@ function AlertDialogContent({
 
   // Content styles
   const contentClasses = cn(
+    "relative z-10 pointer-events-auto",
     "overflow-hidden",
     "rounded-2xl sm:rounded-3xl",
     "border border-border",
@@ -605,32 +639,8 @@ function AlertDialogContent({
     className
   );
 
-  // Animated version with morphing
-  if (!disableAnimation) {
-    return (
-      <motion.div
-        ref={contentRef}
-        layoutId={`dialog-${uniqueId}`}
-        className={contentClasses}
-        style={{ ...style, borderRadius: 24 }}
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby={`${uniqueId}-title`}
-        aria-describedby={`${uniqueId}-description`}
-        id={`${uniqueId}-content`}
-        data-slot="alert-dialog-content"
-        data-state="open"
-        initial={false}
-        transition={dialogSprings.morph}
-      >
-        {showCloseButton && <AlertDialogClose onClick={onCloseButtonClick} />}
-        {children}
-      </motion.div>
-    );
-  }
-
-  // Non-animated version
-  return (
+  // Content panel component
+  const ContentPanel = disableAnimation ? (
     <div
       ref={contentRef}
       className={contentClasses}
@@ -646,10 +656,70 @@ function AlertDialogContent({
       {showCloseButton && <AlertDialogClose onClick={onCloseButtonClick} />}
       {children}
     </div>
+  ) : (
+    <motion.div
+      ref={contentRef}
+      layoutId={`dialog-${uniqueId}`}
+      className={contentClasses}
+      style={{ ...style, borderRadius: 24 }}
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby={`${uniqueId}-title`}
+      aria-describedby={`${uniqueId}-description`}
+      id={`${uniqueId}-content`}
+      data-slot="alert-dialog-content"
+      data-state="open"
+      initial={false}
+      transition={dialogSprings.morph}
+    >
+      {showCloseButton && <AlertDialogClose onClick={onCloseButtonClick} />}
+      {children}
+    </motion.div>
+  );
+
+  // Standalone mode: just return the content panel (for use with explicit Container)
+  if (standalone) {
+    return ContentPanel;
+  }
+
+  // shadcn mode: include portal and overlay
+  if (!mounted) return null;
+
+  return createPortal(
+    <AnimatePresence initial={false} mode="wait">
+      {isOpen && (
+        <MotionConfig transition={dialogSprings.morph}>
+          {/* Backdrop with blur - z-[100] to be above all UI elements */}
+          {disableAnimation ? (
+            <div
+              key={`backdrop-${uniqueId}`}
+              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              data-slot="alert-dialog-overlay"
+            />
+          ) : (
+            <motion.div
+              key={`backdrop-${uniqueId}`}
+              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              data-slot="alert-dialog-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={dialogSprings.backdrop}
+            />
+          )}
+
+          {/* Centered container - z-[101] above backdrop, pointer-events-none to allow clicks through */}
+          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+            {ContentPanel}
+          </div>
+        </MotionConfig>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 }
 
-AlertDialogContent.displayName = "AlertDialog.Content";
+AlertDialogContent.displayName = "AlertDialogContent";
 
 // =============================================================================
 // ALERT DIALOG HEADER
@@ -670,7 +740,7 @@ export interface AlertDialogHeaderProps {
 }
 
 /**
- * AlertDialog.Header - Header section with optional icon
+ * AlertDialogHeader - Header section with optional icon
  */
 function AlertDialogHeader({
   children,
@@ -702,7 +772,7 @@ function AlertDialogHeader({
   );
 }
 
-AlertDialogHeader.displayName = "AlertDialog.Header";
+AlertDialogHeader.displayName = "AlertDialogHeader";
 
 // =============================================================================
 // ALERT DIALOG BODY
@@ -719,7 +789,7 @@ export interface AlertDialogBodyProps {
 }
 
 /**
- * AlertDialog.Body - Main content area with fade animation
+ * AlertDialogBody - Main content area with fade animation
  */
 function AlertDialogBody({ children, className }: AlertDialogBodyProps) {
   const { disableAnimation } = useAlertDialog();
@@ -750,7 +820,7 @@ function AlertDialogBody({ children, className }: AlertDialogBodyProps) {
   );
 }
 
-AlertDialogBody.displayName = "AlertDialog.Body";
+AlertDialogBody.displayName = "AlertDialogBody";
 
 // =============================================================================
 // ALERT DIALOG FOOTER
@@ -767,7 +837,7 @@ export interface AlertDialogFooterProps {
 }
 
 /**
- * AlertDialog.Footer - Footer section for action buttons
+ * AlertDialogFooter - Footer section for action buttons
  */
 function AlertDialogFooter({ children, className }: AlertDialogFooterProps) {
   return (
@@ -783,7 +853,7 @@ function AlertDialogFooter({ children, className }: AlertDialogFooterProps) {
   );
 }
 
-AlertDialogFooter.displayName = "AlertDialog.Footer";
+AlertDialogFooter.displayName = "AlertDialogFooter";
 
 // =============================================================================
 // ALERT DIALOG TITLE
@@ -802,7 +872,7 @@ export interface AlertDialogTitleProps {
 }
 
 /**
- * AlertDialog.Title - Dialog title for aria-labelledby
+ * AlertDialogTitle - Dialog title for aria-labelledby
  */
 function AlertDialogTitle({
   children,
@@ -827,7 +897,7 @@ function AlertDialogTitle({
   );
 }
 
-AlertDialogTitle.displayName = "AlertDialog.Title";
+AlertDialogTitle.displayName = "AlertDialogTitle";
 
 // =============================================================================
 // ALERT DIALOG SUBTITLE
@@ -846,7 +916,7 @@ export interface AlertDialogSubtitleProps {
 }
 
 /**
- * AlertDialog.Subtitle - Optional subtitle below the title
+ * AlertDialogSubtitle - Optional subtitle below the title
  */
 function AlertDialogSubtitle({
   children,
@@ -884,7 +954,7 @@ function AlertDialogSubtitle({
   );
 }
 
-AlertDialogSubtitle.displayName = "AlertDialog.Subtitle";
+AlertDialogSubtitle.displayName = "AlertDialogSubtitle";
 
 // =============================================================================
 // ALERT DIALOG DESCRIPTION
@@ -903,7 +973,7 @@ export interface AlertDialogDescriptionProps {
 }
 
 /**
- * AlertDialog.Description - Dialog description for aria-describedby
+ * AlertDialogDescription - Dialog description for aria-describedby
  */
 function AlertDialogDescription({
   children,
@@ -928,7 +998,7 @@ function AlertDialogDescription({
   );
 }
 
-AlertDialogDescription.displayName = "AlertDialog.Description";
+AlertDialogDescription.displayName = "AlertDialogDescription";
 
 // =============================================================================
 // ALERT DIALOG ACTION BUTTON
@@ -944,8 +1014,8 @@ export interface AlertDialogActionProps {
   className?: string;
   /** Inline styles */
   style?: React.CSSProperties;
-  /** Use destructive styling */
-  destructive?: boolean;
+  /** Button variant - use "destructive" for dangerous actions */
+  variant?: "default" | "destructive";
   /** Click handler */
   onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
   /** Disable the button */
@@ -953,17 +1023,25 @@ export interface AlertDialogActionProps {
 }
 
 /**
- * AlertDialog.Action - Primary action button that closes the dialog
+ * AlertDialogAction - Primary action button that closes the dialog
+ *
+ * @example
+ * ```tsx
+ * <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
+ * <AlertDialogAction>Confirm</AlertDialogAction>
+ * ```
  */
 function AlertDialogAction({
   children,
   className,
   style,
-  destructive = false,
+  variant = "default",
   onClick,
   disabled = false,
 }: AlertDialogActionProps) {
   const { setIsOpen } = useAlertDialog();
+
+  const isDestructive = variant === "destructive";
 
   const handleClick = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -982,9 +1060,10 @@ function AlertDialogAction({
         "inline-flex items-center justify-center",
         "rounded-xl sm:rounded-2xl px-5 py-3 sm:py-3.5",
         "text-sm sm:text-base font-semibold",
-        destructive
-          ? "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:bg-destructive/80"
-          : "bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 active:bg-primary/80",
+        "shadow-sm",
+        isDestructive
+          ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 active:bg-destructive/80"
+          : "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80",
         "transition-all duration-150",
         "active:scale-[0.98]",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
@@ -1002,7 +1081,7 @@ function AlertDialogAction({
   );
 }
 
-AlertDialogAction.displayName = "AlertDialog.Action";
+AlertDialogAction.displayName = "AlertDialogAction";
 
 // =============================================================================
 // ALERT DIALOG CANCEL BUTTON
@@ -1025,7 +1104,7 @@ export interface AlertDialogCancelProps {
 }
 
 /**
- * AlertDialog.Cancel - Secondary button that closes the dialog
+ * AlertDialogCancel - Secondary button that closes the dialog
  */
 function AlertDialogCancel({
   children = "Cancel",
@@ -1073,7 +1152,7 @@ function AlertDialogCancel({
   );
 }
 
-AlertDialogCancel.displayName = "AlertDialog.Cancel";
+AlertDialogCancel.displayName = "AlertDialogCancel";
 
 // =============================================================================
 // ALERT DIALOG CLOSE BUTTON (X ICON)
@@ -1090,7 +1169,7 @@ export interface AlertDialogCloseProps {
 }
 
 /**
- * AlertDialog.Close - Close button with X icon (optional)
+ * AlertDialogClose - Close button with X icon (optional)
  */
 function AlertDialogClose({ className, onClick }: AlertDialogCloseProps) {
   const { setIsOpen } = useAlertDialog();
@@ -1126,7 +1205,7 @@ function AlertDialogClose({ className, onClick }: AlertDialogCloseProps) {
   );
 }
 
-AlertDialogClose.displayName = "AlertDialog.Close";
+AlertDialogClose.displayName = "AlertDialogClose";
 
 // =============================================================================
 // ALERT DIALOG IMAGE
@@ -1147,7 +1226,7 @@ export interface AlertDialogImageProps {
 }
 
 /**
- * AlertDialog.Image - Image with fade animation
+ * AlertDialogImage - Image with fade animation
  */
 function AlertDialogImage({
   src,
@@ -1185,75 +1264,39 @@ function AlertDialogImage({
   );
 }
 
-AlertDialogImage.displayName = "AlertDialog.Image";
+AlertDialogImage.displayName = "AlertDialogImage";
 
 // =============================================================================
-// COMPOUND COMPONENT EXPORT
+// COMPONENT EXPORT
 // =============================================================================
 
 /**
- * AlertDialog compound component with sub-components attached.
+ * AlertDialog - Container component that manages dialog state.
  *
- * Can be used as either:
- * 1. Direct component: `<AlertDialog>` (equivalent to `<AlertDialog.Root>`)
- * 2. Namespace pattern: `<AlertDialog.Root>`, `<AlertDialog.Trigger>`, etc.
+ * Use with named exports for sub-components.
  *
- * @example Direct usage (recommended for tests and simple cases)
+ * @example
  * ```tsx
  * <AlertDialog>
  *   <AlertDialogTrigger asChild>
  *     <Button>Delete</Button>
  *   </AlertDialogTrigger>
- *   <AlertDialogContainer>
- *     <AlertDialogContent>
- *       <AlertDialogTitle>Delete Item?</AlertDialogTitle>
- *       <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
- *       <AlertDialogAction destructive>Delete</AlertDialogAction>
- *       <AlertDialogCancel />
- *     </AlertDialogContent>
- *   </AlertDialogContainer>
+ *   <AlertDialogContent>
+ *     <AlertDialogTitle>Delete Item?</AlertDialogTitle>
+ *     <AlertDialogDescription>This cannot be undone.</AlertDialogDescription>
+ *     <AlertDialogAction variant="destructive">Delete</AlertDialogAction>
+ *     <AlertDialogCancel />
+ *   </AlertDialogContent>
  * </AlertDialog>
  * ```
- *
- * @example Namespace pattern (recommended for documentation)
- * ```tsx
- * <AlertDialog.Root>
- *   <AlertDialog.Trigger asChild>
- *     <Button>Delete</Button>
- *   </AlertDialog.Trigger>
- *   <AlertDialog.Container>
- *     <AlertDialog.Content>
- *       <AlertDialog.Title>Delete Item?</AlertDialog.Title>
- *       <AlertDialog.Description>This cannot be undone.</AlertDialog.Description>
- *       <AlertDialog.Action destructive>Delete</AlertDialog.Action>
- *       <AlertDialog.Cancel />
- *     </AlertDialog.Content>
- *   </AlertDialog.Container>
- * </AlertDialog.Root>
- * ```
  */
-const AlertDialog = Object.assign(AlertDialogRoot, {
-  Root: AlertDialogRoot,
-  Trigger: AlertDialogTrigger,
-  Container: AlertDialogContainer,
-  Content: AlertDialogContent,
-  Header: AlertDialogHeader,
-  Body: AlertDialogBody,
-  Footer: AlertDialogFooter,
-  Title: AlertDialogTitle,
-  Subtitle: AlertDialogSubtitle,
-  Description: AlertDialogDescription,
-  Action: AlertDialogAction,
-  Cancel: AlertDialogCancel,
-  Close: AlertDialogClose,
-  Image: AlertDialogImage,
-});
+const AlertDialog = AlertDialogRoot;
 
 // =============================================================================
 // EXPORTS
 // =============================================================================
 
-// Primary export: Compound component with namespace
+// Primary export
 export { AlertDialog };
 
 // Named exports for direct imports

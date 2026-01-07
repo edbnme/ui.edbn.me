@@ -1,6 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "edbn-ui",
+  "version": "0.2.0",
   "homepage": "https://ui.edbn.me",
   "items": [
     {
@@ -98,15 +99,15 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "components/MotionProvider.tsx",
+          "path": "components/motion-provider.tsx",
           "type": "registry:component"
         },
         {
-          "path": "hooks/useReducedMotion.ts",
+          "path": "hooks/use-reduced-motion.ts",
           "type": "registry:hook"
         },
         {
-          "path": "hooks/useLowPowerDevice.ts",
+          "path": "hooks/use-low-power-device.ts",
           "type": "registry:hook"
         },
         {
@@ -175,7 +176,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "hooks/useClickOutside.tsx",
+          "path": "hooks/use-click-outside.tsx",
           "type": "registry:hook"
         }
       ]
@@ -189,7 +190,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "hooks/useStableId.ts",
+          "path": "hooks/use-stable-id.ts",
           "type": "registry:hook"
         }
       ]
@@ -203,7 +204,7 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "hooks/useControllableState.ts",
+          "path": "hooks/use-controllable-state.ts",
           "type": "registry:hook"
         }
       ]
@@ -217,8 +218,27 @@
       "registryDependencies": [],
       "files": [
         {
-          "path": "hooks/useMergedRefs.ts",
+          "path": "hooks/use-merged-refs.ts",
           "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Composable avatar component with sizes, status indicators, and group stacking support.",
+      "dependencies": [
+        "@radix-ui/react-avatar",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/avatar.tsx",
+          "type": "registry:ui"
         }
       ]
     }

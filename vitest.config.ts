@@ -14,7 +14,12 @@ export default defineConfig({
     setupFiles: ["./src/__tests__/setup/test-setup.ts"],
 
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
-    exclude: ["**/node_modules/**", "**/dist/**", "**/.next/**", "**/coverage/**"],
+    exclude: [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/.next/**",
+      "**/coverage/**",
+    ],
 
     coverage: {
       provider: "v8",
@@ -47,7 +52,9 @@ export default defineConfig({
       all: true,
     },
 
-    reporters: isGitHubActions ? ["default", "github-actions", "json"] : ["default"],
+    reporters: isGitHubActions
+      ? ["default", "github-actions", "json"]
+      : ["default"],
     outputFile: isCI ? { json: "./test-results.json" } : undefined,
 
     pool: "threads",
