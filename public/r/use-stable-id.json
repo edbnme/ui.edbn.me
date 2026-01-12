@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-stable-id",
+  "type": "registry:hook",
+  "title": "useStableId",
+  "description": "SSR-safe hook for generating stable unique IDs for accessibility attributes.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "hooks/use-stable-id.ts",
+      "content": "\"use client\";\n\nimport { useId, useMemo } from \"react\";\n\n// Global counter for SSR-safe IDs when useId is not available\nlet globalCounter = 0;\n\n/**\n * Generates a stable, SSR-safe ID that persists across renders.\n *\n * This hook ensures that IDs remain consistent between server and client\n * renders, preventing hydration mismatches. It uses React 18's useId\n * when available, with a fallback for older React versions.\n *\n * @param prefix - Optional prefix for the generated ID\n * @returns A stable, unique ID string\n *\n * @example\n * ```tsx\n * function MyComponent() {\n *   const id = useStableId('dialog');\n *\n *   return (\n *     <div aria-labelledby={`${id}-title`}>\n *       <h2 id={`${id}-title`}>Title</h2>\n *     </div>\n *   );\n * }\n * ```\n */\nexport function useStableId(prefix = \"id\"): string {\n  // Use React 18+'s useId for truly stable SSR-safe IDs\n  const reactId = useId();\n\n  // Memoize the ID construction - this is stable and render-safe\n  const stableId = useMemo(() => {\n    // React's useId returns values like \":r0:\" - clean it up\n    const cleanId = reactId.replace(/:/g, \"\");\n    return `${prefix}-${cleanId}`;\n  }, [reactId, prefix]);\n\n  return stableId;\n}\n\n/**\n * Generates a stable ID without React's useId hook.\n * Use this as a fallback or in non-component contexts.\n *\n * ⚠️ Warning: This may cause hydration mismatches if used during SSR.\n * Prefer useStableId in React components.\n *\n * @param prefix - Optional prefix for the generated ID\n * @returns A unique ID string\n *\n * @example\n * ```tsx\n * function MyComponent() {\n *   const idRef = useRef<string | null>(null);\n *\n *   if (!idRef.current) {\n *     idRef.current = generateId('button');\n *   }\n *\n *   return <button id={idRef.current}>Click me</button>;\n * }\n * ```\n */\nexport function generateId(prefix = \"id\"): string {\n  return `${prefix}-${++globalCounter}`;\n}\n\n/**\n * Hook that generates related IDs for a component and its parts.\n *\n * Useful for components with multiple elements that need related IDs\n * (e.g., dialog with title, description, content).\n *\n * @param prefix - Base prefix for all IDs\n * @returns An object with methods to generate related IDs\n *\n * @example\n * ```tsx\n * function Dialog() {\n *   const ids = useRelatedIds('dialog');\n *\n *   return (\n *     <div\n *       role=\"dialog\"\n *       aria-labelledby={ids.for('title')}\n *       aria-describedby={ids.for('description')}\n *     >\n *       <h2 id={ids.for('title')}>Title</h2>\n *       <p id={ids.for('description')}>Description</p>\n *     </div>\n *   );\n * }\n * ```\n */\nexport function useRelatedIds(prefix = \"component\"): {\n  base: string;\n  for: (part: string) => string;\n} {\n  const baseId = useStableId(prefix);\n\n  return {\n    base: baseId,\n    for: (part: string) => `${baseId}-${part}`,\n  };\n}\n\nexport default useStableId;\n",
+      "type": "registry:hook"
+    }
+  ]
+}

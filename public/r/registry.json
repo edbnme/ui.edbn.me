@@ -1,0 +1,266 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "edbn-ui",
+  "version": "0.2.0",
+  "homepage": "https://ui.edbn.me",
+  "items": [
+    {
+      "name": "button",
+      "type": "registry:ui",
+      "title": "Button",
+      "description": "Animated button component with press feedback, loading states, and icon support.",
+      "dependencies": [
+        "@radix-ui/react-slot",
+        "class-variance-authority",
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/button.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "alert-dialog",
+      "type": "registry:ui",
+      "title": "Alert Dialog",
+      "description": "Animated modal dialog with morphing animations, focus trap, and controlled/uncontrolled state.",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils",
+        "button"
+      ],
+      "files": [
+        {
+          "path": "components/ui/alert-dialog.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "popover",
+      "type": "registry:ui",
+      "title": "Popover",
+      "description": "Animated popover component with morphing transitions, focus trap, and click-outside handling.",
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/popover.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "dropdown-menu",
+      "type": "registry:ui",
+      "title": "Dropdown Menu",
+      "description": "Animated dropdown menu with smooth spring animations and staggered item reveals.",
+      "dependencies": [
+        "@radix-ui/react-dropdown-menu",
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/dropdown-menu.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "motion-provider",
+      "type": "registry:component",
+      "title": "Motion Provider",
+      "description": "Global animation configuration provider with reduced motion and low-power device detection.",
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "components/motion-provider.tsx",
+          "type": "registry:component"
+        },
+        {
+          "path": "hooks/use-reduced-motion.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "hooks/use-low-power-device.ts",
+          "type": "registry:hook"
+        },
+        {
+          "path": "lib/motion.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "animations",
+      "type": "registry:lib",
+      "title": "Animations",
+      "description": "Motion system with spring presets, transitions, and variant factories.",
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "lib/animations.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "tokens",
+      "type": "registry:lib",
+      "title": "Design Tokens",
+      "description": "Centralized design tokens for colors, spacing, typography, shadows, and more.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "lib/tokens.ts",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "icons",
+      "type": "registry:lib",
+      "title": "Animated Icons",
+      "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "lib/icons.tsx",
+          "type": "registry:lib"
+        }
+      ]
+    },
+    {
+      "name": "use-click-outside",
+      "type": "registry:hook",
+      "title": "useClickOutside",
+      "description": "Hook to detect clicks outside a referenced element.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/use-click-outside.tsx",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-stable-id",
+      "type": "registry:hook",
+      "title": "useStableId",
+      "description": "SSR-safe hook for generating stable unique IDs for accessibility attributes.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/use-stable-id.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-controllable-state",
+      "type": "registry:hook",
+      "title": "useControllableState",
+      "description": "Hook for handling controlled/uncontrolled state pattern in components.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/use-controllable-state.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "use-merged-refs",
+      "type": "registry:hook",
+      "title": "useMergedRefs",
+      "description": "Hook to merge multiple refs into a single callback ref.",
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "hooks/use-merged-refs.ts",
+          "type": "registry:hook"
+        }
+      ]
+    },
+    {
+      "name": "avatar",
+      "type": "registry:ui",
+      "title": "Avatar",
+      "description": "Composable avatar component with sizes, status indicators, and group stacking support.",
+      "dependencies": [
+        "@radix-ui/react-avatar",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/avatar.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    },
+    {
+      "name": "pull-down",
+      "type": "registry:ui",
+      "title": "Pull Down Menu",
+      "description": "A pull down menu with morphing animations. The trigger morphs into the menu container with spring physics.",
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/ui/pull-down.tsx",
+          "type": "registry:ui"
+        }
+      ]
+    }
+  ]
+}

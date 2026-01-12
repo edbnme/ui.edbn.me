@@ -1,0 +1,51 @@
+{
+  "name": "@edbn/ui",
+  "version": "0.2.0",
+  "description": "A modern React component library with refined motion and accessibility.",
+  "author": "kewonit",
+  "license": "MIT",
+  "homepage": "https://ui.edbn.me",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edbnme/ui.edbn.me"
+  },
+  "type": "module",
+  "scripts": {
+    "registry:build": "node scripts/update-registry.mjs",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run"
+  },
+  "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@radix-ui/react-alert-dialog": "^1.1.15",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-scroll-area": "^1.2.10",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slider": "^1.3.6",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "motion": "^12.23.25",
+    "next-themes": "^0.4.6",
+    "tailwind-merge": "^3.4.0",
+    "tw-animate-css": "^1.4.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "typescript": "^5",
+    "vitest": "^4.0.14"
+  }
+}
