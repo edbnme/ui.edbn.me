@@ -49,7 +49,6 @@ export default defineConfig({
       },
       skipFull: false,
       clean: true,
-      all: true,
     },
 
     reporters: isGitHubActions
@@ -57,21 +56,14 @@ export default defineConfig({
       : ["default"],
     outputFile: isCI ? { json: "./test-results.json" } : undefined,
 
-    pool: "threads",
-    poolOptions: {
-      threads: {
-        singleThread: false,
-        minThreads: 1,
-        maxThreads: isCI ? 2 : undefined,
-      },
-    },
+    // Vitest 4 configuration
+    maxWorkers: isCI ? 2 : undefined,
     isolate: false,
     testTimeout: 5000,
     hookTimeout: 5000,
     bail: isCI ? 1 : 0,
     sequence: { shuffle: false },
     watch: false,
-    watchExclude: ["**/node_modules/**", "**/dist/**", "**/coverage/**"],
   },
 
   resolve: {
