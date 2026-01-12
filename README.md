@@ -1,6 +1,6 @@
 # edbn/ui
 
-[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/kewonit/ui.edbn.me/releases)
+[![Version](https://img.shields.io/badge/version-0.2.0-blue.svg)](https://github.com/edbnme/ui.edbn.me/releases)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE.md)
 
 A collection of React components with smooth animations and careful attention to detail. Built with Next.js 16, Tailwind CSS v4, and Motion.
