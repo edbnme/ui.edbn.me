@@ -3,7 +3,21 @@
   "version": "0.2.0",
   "description": "A modern React component library with refined motion and accessibility.",
   "author": "edbnme",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "keywords": [
+    "react",
+    "components",
+    "ui",
+    "tailwind",
+    "tailwindcss",
+    "motion",
+    "animation",
+    "accessibility",
+    "a11y",
+    "radix-ui",
+    "shadcn",
+    "design-system"
+  ],
   "homepage": "https://ui.edbn.me",
   "repository": {
     "type": "git",

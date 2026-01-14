@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "separator",
+  "type": "registry:ui",
+  "title": "Separator",
+  "description": "A visual separator for dividing content, supporting horizontal and vertical orientations.",
+  "dependencies": ["@radix-ui/react-separator"],
+  "registryDependencies": ["utils"],
+  "files": [
+    {
+      "path": "components/ui/separator.tsx",
+      "content": "/**\n * Separator Component\n *\n * A visual separator for dividing content. Supports horizontal and vertical\n * orientations with proper accessibility semantics.\n *\n * Built on Radix UI Separator primitive.\n *\n * @packageDocumentation\n */\n\n\"use client\";\n\nimport * as React from \"react\";\nimport * as SeparatorPrimitive from \"@radix-ui/react-separator\";\n\nimport { cn } from \"@/lib/utils\";\n\nfunction Separator({\n  className,\n  orientation = \"horizontal\",\n  decorative = true,\n  ...props\n}: React.ComponentProps<typeof SeparatorPrimitive.Root>) {\n  return (\n    <SeparatorPrimitive.Root\n      data-slot=\"separator\"\n      decorative={decorative}\n      orientation={orientation}\n      className={cn(\n        \"bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nSeparator.displayName = \"Separator\";\n\nexport { Separator };\n",
+      "type": "registry:ui"
+    }
+  ]
+}

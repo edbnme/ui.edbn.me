@@ -191,6 +191,111 @@ const components = {
       config: {},
     },
   },
+  input: {
+    type: "registry:ui",
+    title: "Input",
+    description:
+      "A styled input component with focus states, validation support, and file input styling.",
+    dependencies: [],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/input.tsx", type: "registry:ui" }],
+  },
+  "scroll-area": {
+    type: "registry:ui",
+    title: "Scroll Area",
+    description:
+      "A scrollable area with custom scrollbars built on Radix UI ScrollArea.",
+    dependencies: ["@radix-ui/react-scroll-area"],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/scroll-area.tsx", type: "registry:ui" }],
+  },
+  separator: {
+    type: "registry:ui",
+    title: "Separator",
+    description:
+      "A visual separator for dividing content, supporting horizontal and vertical orientations.",
+    dependencies: ["@radix-ui/react-separator"],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/separator.tsx", type: "registry:ui" }],
+  },
+  sheet: {
+    type: "registry:ui",
+    title: "Sheet",
+    description:
+      "A slide-out panel component with drag-to-dismiss, multiple sides, and smooth animations.",
+    dependencies: [
+      "@radix-ui/react-dialog",
+      "class-variance-authority",
+      "motion",
+    ],
+    registryDependencies: ["utils"],
+    inlineDependencies: ["motion-provider", "icons"],
+    files: [{ path: "components/ui/sheet.tsx", type: "registry:ui" }],
+  },
+  skeleton: {
+    type: "registry:ui",
+    title: "Skeleton",
+    description:
+      "A loading placeholder component with pulse animation for content loading states.",
+    dependencies: [],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/skeleton.tsx", type: "registry:ui" }],
+  },
+  slider: {
+    type: "registry:ui",
+    title: "Slider",
+    description:
+      "A range slider component with single or multiple thumbs, built on Radix UI Slider.",
+    dependencies: ["@radix-ui/react-slider"],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/slider.tsx", type: "registry:ui" }],
+  },
+  tooltip: {
+    type: "registry:ui",
+    title: "Tooltip",
+    description:
+      "A tooltip component with smooth animations and configurable positioning.",
+    dependencies: ["@radix-ui/react-tooltip"],
+    registryDependencies: ["utils"],
+    inlineDependencies: [],
+    files: [{ path: "components/ui/tooltip.tsx", type: "registry:ui" }],
+  },
+  sidebar: {
+    type: "registry:ui",
+    title: "Sidebar",
+    description:
+      "A responsive sidebar component with collapsible states, mobile sheet mode, and keyboard shortcuts.",
+    dependencies: [
+      "@radix-ui/react-slot",
+      "class-variance-authority",
+      "@phosphor-icons/react",
+    ],
+    registryDependencies: [
+      "utils",
+      "button",
+      "input",
+      "separator",
+      "sheet",
+      "skeleton",
+      "tooltip",
+    ],
+    inlineDependencies: ["use-mobile"],
+    files: [{ path: "components/ui/sidebar.tsx", type: "registry:ui" }],
+  },
+  "use-mobile": {
+    type: "registry:hook",
+    title: "useMobile",
+    description: "Hook to detect mobile viewport based on media query.",
+    dependencies: [],
+    registryDependencies: [],
+    inlineDependencies: [],
+    files: [{ path: "hooks/use-mobile.ts", type: "registry:hook" }],
+  },
 };
 
 function escapeContent(content) {

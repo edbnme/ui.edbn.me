@@ -13,15 +13,43 @@ npx shadcn@latest add https://ui.edbn.me/r/button.json
 
 ### Available Components
 
-| Component           | Registry URL                                  | Description                                                       |
-| ------------------- | --------------------------------------------- | ----------------------------------------------------------------- |
-| **Button**          | `https://ui.edbn.me/r/button.json`            | Animated button with press feedback, loading states, icon support |
-| **Alert Dialog**    | `https://ui.edbn.me/r/alert-dialog.json`      | Modal dialog with morphing animations and focus trap              |
-| **Popover**         | `https://ui.edbn.me/r/popover.json`           | Animated popover with morphing transitions                        |
-| **Dropdown Menu**   | `https://ui.edbn.me/r/dropdown-menu.json`     | Dropdown menu with smooth spring animations                       |
-| **Motion Provider** | `https://ui.edbn.me/r/motion-provider.json`   | Global animation config with reduced motion support               |
-| **Icons**           | `https://ui.edbn.me/r/icons.json`             | Animated icons including loading spinners                         |
-| **useClickOutside** | `https://ui.edbn.me/r/use-click-outside.json` | Hook to detect clicks outside an element                          |
+#### UI Components
+
+| Component         | Registry URL                              | Description                                                       |
+| ----------------- | ----------------------------------------- | ----------------------------------------------------------------- |
+| **Button**        | `https://ui.edbn.me/r/button.json`        | Animated button with press feedback, loading states, icon support |
+| **Alert Dialog**  | `https://ui.edbn.me/r/alert-dialog.json`  | Modal dialog with morphing animations and focus trap              |
+| **Avatar**        | `https://ui.edbn.me/r/avatar.json`        | Composable avatar with sizes, status indicators, group stacking   |
+| **Dropdown Menu** | `https://ui.edbn.me/r/dropdown-menu.json` | Dropdown menu with smooth spring animations                       |
+| **Input**         | `https://ui.edbn.me/r/input.json`         | Styled input with focus states and validation support             |
+| **Popover**       | `https://ui.edbn.me/r/popover.json`       | Animated popover with morphing transitions                        |
+| **Pull Down**     | `https://ui.edbn.me/r/pull-down.json`     | Pull down menu with morphing animations                           |
+| **Scroll Area**   | `https://ui.edbn.me/r/scroll-area.json`   | Scrollable area with custom scrollbars                            |
+| **Separator**     | `https://ui.edbn.me/r/separator.json`     | Visual separator for dividing content                             |
+| **Sheet**         | `https://ui.edbn.me/r/sheet.json`         | Slide-out panel with drag-to-dismiss                              |
+| **Sidebar**       | `https://ui.edbn.me/r/sidebar.json`       | Responsive sidebar with collapsible states                        |
+| **Skeleton**      | `https://ui.edbn.me/r/skeleton.json`      | Loading placeholder with pulse animation                          |
+| **Slider**        | `https://ui.edbn.me/r/slider.json`        | Range slider with single or multiple thumbs                       |
+| **Tooltip**       | `https://ui.edbn.me/r/tooltip.json`       | Tooltip with smooth animations                                    |
+
+#### Utilities
+
+| Utility             | Registry URL                                | Description                                         |
+| ------------------- | ------------------------------------------- | --------------------------------------------------- |
+| **Motion Provider** | `https://ui.edbn.me/r/motion-provider.json` | Global animation config with reduced motion support |
+| **Animations**      | `https://ui.edbn.me/r/animations.json`      | Motion system with spring presets and transitions   |
+| **Tokens**          | `https://ui.edbn.me/r/tokens.json`          | Design tokens for colors, spacing, typography       |
+| **Icons**           | `https://ui.edbn.me/r/icons.json`           | Animated icons including loading spinners           |
+
+#### Hooks
+
+| Hook                     | Registry URL                                       | Description                                  |
+| ------------------------ | -------------------------------------------------- | -------------------------------------------- |
+| **useClickOutside**      | `https://ui.edbn.me/r/use-click-outside.json`      | Detect clicks outside an element             |
+| **useControllableState** | `https://ui.edbn.me/r/use-controllable-state.json` | Handle controlled/uncontrolled state pattern |
+| **useMergedRefs**        | `https://ui.edbn.me/r/use-merged-refs.json`        | Merge multiple refs into one                 |
+| **useMobile**            | `https://ui.edbn.me/r/use-mobile.json`             | Detect mobile viewport                       |
+| **useStableId**          | `https://ui.edbn.me/r/use-stable-id.json`          | Generate SSR-safe unique IDs                 |
 
 > **Note:** All components automatically bundle their dependencies. You don't need to install motion-provider separately!
 

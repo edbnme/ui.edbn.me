@@ -29,12 +29,12 @@ let globalCounter = 0;
  * ```
  */
 export function useStableId(prefix = "id"): string {
-  // Use React 18+'s useId for truly stable SSR-safe IDs
+  // Use React 18+'s useId for stable, SSR-safe identifiers
   const reactId = useId();
 
-  // Memoize the ID construction - this is stable and render-safe
+  // Memoize the ID construction for render stability
   const stableId = useMemo(() => {
-    // React's useId returns values like ":r0:" - clean it up
+    // Remove colons from React's useId format (e.g., ":r0:") for valid HTML IDs
     const cleanId = reactId.replace(/:/g, "");
     return `${prefix}-${cleanId}`;
   }, [reactId, prefix]);

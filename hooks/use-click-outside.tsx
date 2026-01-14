@@ -1,9 +1,13 @@
 "use client";
 
-import { RefObject, useEffect } from "react";
+import { RefObject, useEffect, useLayoutEffect, useRef } from "react";
 
 /**
  * Hook to detect clicks outside of a specified element
+ *
+ * Uses a ref to store the handler, preventing unnecessary event listener
+ * re-attachment when the handler reference changes. This follows the
+ * "Store Event Handlers in Refs" best practice pattern.
  *
  * @param ref - React ref object pointing to the element to detect clicks outside of
  * @param handler - Callback function to execute when a click outside is detected
@@ -18,15 +22,24 @@ import { RefObject, useEffect } from "react";
  */
 function useClickOutside<T extends HTMLElement>(
   ref: RefObject<T | null>,
-  handler: (event: MouseEvent | TouchEvent) => void
+  handler: (event: MouseEvent | TouchEvent) => void,
 ): void {
+  // Store handler in ref to prevent event listener re-attachment
+  const handlerRef = useRef(handler);
+
+  // Update ref on each render (useLayoutEffect ensures it's updated before events fire)
+  useLayoutEffect(() => {
+    handlerRef.current = handler;
+  });
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent | TouchEvent) => {
       if (!ref || !ref.current || ref.current.contains(event.target as Node)) {
         return;
       }
 
-      handler(event);
+      // Read from ref to always get the latest handler
+      handlerRef.current(event);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -36,7 +49,7 @@ function useClickOutside<T extends HTMLElement>(
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("touchstart", handleClickOutside);
     };
-  }, [ref, handler]);
+  }, [ref]); // handler removed from deps - now stable!
 }
 
 export default useClickOutside;

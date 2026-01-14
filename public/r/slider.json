@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "slider",
+  "type": "registry:ui",
+  "title": "Slider",
+  "description": "A range slider component with single or multiple thumbs, built on Radix UI Slider.",
+  "dependencies": ["@radix-ui/react-slider"],
+  "registryDependencies": ["utils"],
+  "files": [
+    {
+      "path": "components/ui/slider.tsx",
+      "content": "/**\n * Slider Component\n *\n * A range slider component with single or multiple thumbs. Supports\n * keyboard navigation and touch interactions.\n *\n * Built on Radix UI Slider primitive.\n *\n * @packageDocumentation\n */\n\n\"use client\";\n\nimport * as React from \"react\";\nimport * as SliderPrimitive from \"@radix-ui/react-slider\";\nimport { cn } from \"@/lib/utils\";\n\ninterface SliderProps extends React.ComponentPropsWithoutRef<\n  typeof SliderPrimitive.Root\n> {\n  thumbCount?: number;\n}\n\nconst Slider = React.forwardRef<\n  React.ComponentRef<typeof SliderPrimitive.Root>,\n  SliderProps\n>(({ className, thumbCount, ...props }, ref) => {\n  // Determine how many thumbs to render\n  const count =\n    thumbCount ?? props.value?.length ?? props.defaultValue?.length ?? 1;\n\n  return (\n    <SliderPrimitive.Root\n      ref={ref}\n      className={cn(\n        \"relative flex w-full touch-none select-none items-center\",\n        className,\n      )}\n      {...props}\n    >\n      <SliderPrimitive.Track className=\"relative h-2 w-full grow overflow-hidden rounded-full bg-muted\">\n        <SliderPrimitive.Range className=\"absolute h-full bg-primary\" />\n      </SliderPrimitive.Track>\n      {Array.from({ length: count }).map((_, index) => (\n        <SliderPrimitive.Thumb\n          key={index}\n          className=\"block h-5 w-5 rounded-full border-2 border-primary bg-background shadow-md ring-offset-background transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 active:scale-95 disabled:pointer-events-none disabled:opacity-50\"\n        />\n      ))}\n    </SliderPrimitive.Root>\n  );\n});\nSlider.displayName = SliderPrimitive.Root.displayName;\n\nexport { Slider };\n",
+      "type": "registry:ui"
+    }
+  ]
+}

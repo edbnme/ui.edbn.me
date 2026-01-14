@@ -1,3 +1,14 @@
+/**
+ * Separator Component
+ *
+ * A visual separator for dividing content. Supports horizontal and vertical
+ * orientations with proper accessibility semantics.
+ *
+ * Built on Radix UI Separator primitive.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
 import * as React from "react";
@@ -18,7 +29,7 @@ function Separator({
       orientation={orientation}
       className={cn(
         "bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px",
-        className
+        className,
       )}
       {...props}
     />

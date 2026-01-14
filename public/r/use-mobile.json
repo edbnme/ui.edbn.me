@@ -1,0 +1,16 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-mobile",
+  "type": "registry:hook",
+  "title": "useMobile",
+  "description": "Hook to detect mobile viewport based on media query.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "hooks/use-mobile.ts",
+      "content": "import * as React from \"react\";\n\n/** Breakpoint in pixels for mobile detection */\nconst MOBILE_BREAKPOINT = 768;\n\n/**\n * Hook to detect mobile viewport width.\n *\n * Uses the `matchMedia` API to reactively detect viewport changes\n * and returns whether the current viewport is mobile-sized.\n *\n * @returns `true` if viewport width is less than 768px, `false` otherwise.\n *          Returns `false` during SSR/initial render.\n *\n * @example\n * ```tsx\n * function ResponsiveLayout() {\n *   const isMobile = useIsMobile();\n *\n *   return isMobile ? <MobileNav /> : <DesktopNav />;\n * }\n * ```\n */\nexport function useIsMobile(): boolean {\n  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(\n    undefined,\n  );\n\n  React.useEffect(() => {\n    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`);\n    const onChange = () => {\n      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\n    };\n    mql.addEventListener(\"change\", onChange);\n    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);\n    return () => mql.removeEventListener(\"change\", onChange);\n  }, []);\n\n  return !!isMobile;\n}\n",
+      "type": "registry:hook"
+    }
+  ]
+}

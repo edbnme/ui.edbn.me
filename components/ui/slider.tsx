@@ -1,3 +1,14 @@
+/**
+ * Slider Component
+ *
+ * A range slider component with single or multiple thumbs. Supports
+ * keyboard navigation and touch interactions.
+ *
+ * Built on Radix UI Slider primitive.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,14 @@
+/**
+ * Sheet Component
+ *
+ * A slide-out panel component that appears from any edge of the screen.
+ * Features drag-to-dismiss, smooth animations, and proper focus management.
+ *
+ * Built on Radix UI Dialog primitive.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
 import * as React from "react";

@@ -1,3 +1,14 @@
+/**
+ * Scroll Area Component
+ *
+ * A scrollable area with custom styled scrollbars. Provides a native-like
+ * scrolling experience with consistent styling across browsers.
+ *
+ * Built on Radix UI ScrollArea primitive.
+ *
+ * @packageDocumentation
+ */
+
 "use client";
 
 import * as React from "react";
