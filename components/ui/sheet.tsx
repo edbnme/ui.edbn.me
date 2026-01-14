@@ -153,7 +153,7 @@ const SheetOverlay = React.forwardRef<
       ref={ref}
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-[100]",
+        "fixed inset-0 z-100",
         "bg-black/50 backdrop-blur-xl backdrop-saturate-150",
         disableAnimation
           ? "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"

@@ -4,8 +4,14 @@
   "type": "registry:lib",
   "title": "Animated Icons",
   "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
-  "dependencies": ["motion", "@phosphor-icons/react", "tw-animate-css"],
-  "registryDependencies": ["utils"],
+  "dependencies": [
+    "motion",
+    "@phosphor-icons/react",
+    "tw-animate-css"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "lib/icons.tsx",

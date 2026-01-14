@@ -4,8 +4,13 @@
   "type": "registry:ui",
   "title": "Popover",
   "description": "Animated popover component with morphing transitions, focus trap, and click-outside handling.",
-  "dependencies": ["motion", "tw-animate-css"],
-  "registryDependencies": ["utils"],
+  "dependencies": [
+    "motion",
+    "tw-animate-css"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/popover.tsx",

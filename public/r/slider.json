@@ -4,8 +4,12 @@
   "type": "registry:ui",
   "title": "Slider",
   "description": "A range slider component with single or multiple thumbs, built on Radix UI Slider.",
-  "dependencies": ["@radix-ui/react-slider"],
-  "registryDependencies": ["utils"],
+  "dependencies": [
+    "@radix-ui/react-slider"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/slider.tsx",

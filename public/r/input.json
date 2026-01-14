@@ -5,7 +5,9 @@
   "title": "Input",
   "description": "A styled input component with focus states, validation support, and file input styling.",
   "dependencies": [],
-  "registryDependencies": ["utils"],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/input.tsx",

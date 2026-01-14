@@ -1158,7 +1158,7 @@ const Item = forwardRef<HTMLDivElement, PullDownItemProps>(
           "flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm outline-none transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
           "focus:bg-accent focus:text-accent-foreground",
-          "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+          "data-disabled:pointer-events-none data-disabled:opacity-50",
           className,
         )}
         animate={{
@@ -1413,7 +1413,7 @@ const SubMenuTrigger = forwardRef<HTMLDivElement, PullDownSubMenuTriggerProps>(
           "flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm outline-none transition-colors",
           "hover:bg-accent hover:text-accent-foreground",
           "focus:bg-accent focus:text-accent-foreground",
-          "data-[elevated]:hover:bg-transparent",
+          "data-elevated:hover:bg-transparent",
           className,
         )}
         initial={false}

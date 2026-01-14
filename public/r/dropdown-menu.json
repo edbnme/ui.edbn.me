@@ -10,7 +10,9 @@
     "@phosphor-icons/react",
     "tw-animate-css"
   ],
-  "registryDependencies": ["utils"],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/dropdown-menu.tsx",

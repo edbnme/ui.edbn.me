@@ -431,17 +431,17 @@ function AlertDialogContainer({ children }: AlertDialogContainerProps) {
     <AnimatePresence initial={false} mode="wait">
       {isOpen && (
         <MotionConfig transition={dialogSprings.morph}>
-          {/* Backdrop with blur - z-[100] to be above all UI elements */}
+          {/* Backdrop with blur - z-100 to be above all UI elements */}
           {disableAnimation ? (
             <div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-100 bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-backdrop"
             />
           ) : (
             <motion.div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-100 bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-backdrop"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -450,8 +450,8 @@ function AlertDialogContainer({ children }: AlertDialogContainerProps) {
             />
           )}
 
-          {/* Centered container - z-[101] above backdrop, pointer-events-none to allow clicks through */}
-          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+          {/* Centered container - z-101 above backdrop, pointer-events-none to allow clicks through */}
+          <div className="fixed inset-0 z-101 flex items-center justify-center p-4 pointer-events-none">
             {children}
           </div>
         </MotionConfig>
@@ -689,17 +689,17 @@ function AlertDialogContent({
     <AnimatePresence initial={false} mode="wait">
       {isOpen && (
         <MotionConfig transition={dialogSprings.morph}>
-          {/* Backdrop with blur - z-[100] to be above all UI elements */}
+          {/* Backdrop with blur - z-100 to be above all UI elements */}
           {disableAnimation ? (
             <div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-100 bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-overlay"
             />
           ) : (
             <motion.div
               key={`backdrop-${uniqueId}`}
-              className="fixed inset-0 z-[100] bg-black/50 backdrop-blur-lg"
+              className="fixed inset-0 z-100 bg-black/50 backdrop-blur-lg"
               data-slot="alert-dialog-overlay"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -708,8 +708,8 @@ function AlertDialogContent({
             />
           )}
 
-          {/* Centered container - z-[101] above backdrop, pointer-events-none to allow clicks through */}
-          <div className="fixed inset-0 z-[101] flex items-center justify-center p-4 pointer-events-none">
+          {/* Centered container - z-101 above backdrop, pointer-events-none to allow clicks through */}
+          <div className="fixed inset-0 z-101 flex items-center justify-center p-4 pointer-events-none">
             {ContentPanel}
           </div>
         </MotionConfig>
@@ -986,7 +986,7 @@ function AlertDialogDescription({
     <div
       className={cn(
         "text-sm sm:text-[13px] text-muted-foreground leading-relaxed",
-        "max-w-full sm:max-w-[280px] mx-auto",
+        "max-w-full sm:max-w-70 mx-auto",
         className,
       )}
       style={style}

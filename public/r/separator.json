@@ -4,8 +4,12 @@
   "type": "registry:ui",
   "title": "Separator",
   "description": "A visual separator for dividing content, supporting horizontal and vertical orientations.",
-  "dependencies": ["@radix-ui/react-separator"],
-  "registryDependencies": ["utils"],
+  "dependencies": [
+    "@radix-ui/react-separator"
+  ],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/separator.tsx",

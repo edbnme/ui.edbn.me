@@ -16,7 +16,9 @@
         "@phosphor-icons/react",
         "tw-animate-css"
       ],
-      "registryDependencies": ["utils"],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/button.tsx",
@@ -29,8 +31,15 @@
       "type": "registry:ui",
       "title": "Alert Dialog",
       "description": "Animated modal dialog with morphing animations, focus trap, and controlled/uncontrolled state.",
-      "dependencies": ["motion", "@phosphor-icons/react", "tw-animate-css"],
-      "registryDependencies": ["utils", "button"],
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils",
+        "button"
+      ],
       "files": [
         {
           "path": "components/ui/alert-dialog.tsx",
@@ -43,8 +52,13 @@
       "type": "registry:ui",
       "title": "Popover",
       "description": "Animated popover component with morphing transitions, focus trap, and click-outside handling.",
-      "dependencies": ["motion", "tw-animate-css"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/popover.tsx",
@@ -63,7 +77,9 @@
         "@phosphor-icons/react",
         "tw-animate-css"
       ],
-      "registryDependencies": ["utils"],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/dropdown-menu.tsx",
@@ -76,7 +92,10 @@
       "type": "registry:component",
       "title": "Motion Provider",
       "description": "Global animation configuration provider with reduced motion and low-power device detection.",
-      "dependencies": ["motion", "tw-animate-css"],
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -102,7 +121,10 @@
       "type": "registry:lib",
       "title": "Animations",
       "description": "Motion system with spring presets, transitions, and variant factories.",
-      "dependencies": ["motion", "tw-animate-css"],
+      "dependencies": [
+        "motion",
+        "tw-animate-css"
+      ],
       "registryDependencies": [],
       "files": [
         {
@@ -130,8 +152,14 @@
       "type": "registry:lib",
       "title": "Animated Icons",
       "description": "Animated icon components including loading spinners, morphing icons, and close buttons.",
-      "dependencies": ["motion", "@phosphor-icons/react", "tw-animate-css"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "lib/icons.tsx",
@@ -200,8 +228,13 @@
       "type": "registry:ui",
       "title": "Avatar",
       "description": "Composable avatar component with sizes, status indicators, and group stacking support.",
-      "dependencies": ["@radix-ui/react-avatar", "class-variance-authority"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "@radix-ui/react-avatar",
+        "class-variance-authority"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/avatar.tsx",
@@ -214,8 +247,14 @@
       "type": "registry:ui",
       "title": "Pull Down Menu",
       "description": "A pull down menu with morphing animations. The trigger morphs into the menu container with spring physics.",
-      "dependencies": ["motion", "@phosphor-icons/react", "tw-animate-css"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "motion",
+        "@phosphor-icons/react",
+        "tw-animate-css"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/pull-down.tsx",
@@ -229,7 +268,9 @@
       "title": "Input",
       "description": "A styled input component with focus states, validation support, and file input styling.",
       "dependencies": [],
-      "registryDependencies": ["utils"],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/input.tsx",
@@ -242,8 +283,12 @@
       "type": "registry:ui",
       "title": "Scroll Area",
       "description": "A scrollable area with custom scrollbars built on Radix UI ScrollArea.",
-      "dependencies": ["@radix-ui/react-scroll-area"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "@radix-ui/react-scroll-area"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/scroll-area.tsx",
@@ -256,8 +301,12 @@
       "type": "registry:ui",
       "title": "Separator",
       "description": "A visual separator for dividing content, supporting horizontal and vertical orientations.",
-      "dependencies": ["@radix-ui/react-separator"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "@radix-ui/react-separator"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/separator.tsx",
@@ -275,7 +324,9 @@
         "class-variance-authority",
         "motion"
       ],
-      "registryDependencies": ["utils"],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/sheet.tsx",
@@ -289,7 +340,9 @@
       "title": "Skeleton",
       "description": "A loading placeholder component with pulse animation for content loading states.",
       "dependencies": [],
-      "registryDependencies": ["utils"],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/skeleton.tsx",
@@ -302,8 +355,12 @@
       "type": "registry:ui",
       "title": "Slider",
       "description": "A range slider component with single or multiple thumbs, built on Radix UI Slider.",
-      "dependencies": ["@radix-ui/react-slider"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "@radix-ui/react-slider"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/slider.tsx",
@@ -316,8 +373,12 @@
       "type": "registry:ui",
       "title": "Tooltip",
       "description": "A tooltip component with smooth animations and configurable positioning.",
-      "dependencies": ["@radix-ui/react-tooltip"],
-      "registryDependencies": ["utils"],
+      "dependencies": [
+        "@radix-ui/react-tooltip"
+      ],
+      "registryDependencies": [
+        "utils"
+      ],
       "files": [
         {
           "path": "components/ui/tooltip.tsx",

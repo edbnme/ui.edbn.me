@@ -4,7 +4,10 @@
   "type": "registry:lib",
   "title": "Animations",
   "description": "Motion system with spring presets, transitions, and variant factories.",
-  "dependencies": ["motion", "tw-animate-css"],
+  "dependencies": [
+    "motion",
+    "tw-animate-css"
+  ],
   "registryDependencies": [],
   "files": [
     {

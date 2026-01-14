@@ -5,7 +5,9 @@
   "title": "Skeleton",
   "description": "A loading placeholder component with pulse animation for content loading states.",
   "dependencies": [],
-  "registryDependencies": ["utils"],
+  "registryDependencies": [
+    "utils"
+  ],
   "files": [
     {
       "path": "components/ui/skeleton.tsx",
